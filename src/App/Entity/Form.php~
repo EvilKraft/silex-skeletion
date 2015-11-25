@@ -1,0 +1,250 @@
+<?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Form
+ *
+ * @ORM\Table(name="form")
+ * @ORM\Entity
+ */
+class Form
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text1", type="string", length=255, nullable=true)
+     */
+    private $text1;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text2", type="string", length=255, nullable=true)
+     */
+    private $text2;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text3", type="string", length=255, nullable=true)
+     */
+    private $text3;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text4", type="string", length=255, nullable=true)
+     */
+    private $text4;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text5", type="string", length=255, nullable=true)
+     */
+    private $text5;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text6", type="string", length=255, nullable=true)
+     */
+    private $text6;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text7", type="string", length=255, nullable=true)
+     */
+    private $text7;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="text8", type="string", length=255, nullable=true)
+     */
+    private $text8;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="textarea", type="string", length=255, nullable=true)
+     */
+    private $textarea;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255, nullable=true)
+     */
+    private $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="integerField", type="string", length=255, nullable=true)
+     */
+    private $integerfield;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="money", type="string", length=255, nullable=true)
+     */
+    private $money;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="number", type="string", length=255, nullable=true)
+     */
+    private $number;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="password", type="string", length=255, nullable=true)
+     */
+    private $password;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="percent", type="string", length=255, nullable=true)
+     */
+    private $percent;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="search", type="string", length=255, nullable=true)
+     */
+    private $search;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="url", type="string", length=255, nullable=true)
+     */
+    private $url;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="choices1", type="array", nullable=true)
+     */
+    private $choices1;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="choice2", type="string", length=255, nullable=true)
+     */
+    private $choice2;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="choices3", type="array", nullable=true)
+     */
+    private $choices3;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="choice4", type="string", length=255, nullable=true)
+     */
+    private $choice4;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="country", type="string", length=255, nullable=true)
+     */
+    private $country;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="language", type="string", length=255, nullable=true)
+     */
+    private $language;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="locale", type="string", length=255, nullable=true)
+     */
+    private $locale;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="timezone", type="string", length=255, nullable=true)
+     */
+    private $timezone;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="date", type="date", nullable=false)
+     */
+    private $date;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="dateTime", type="datetime", nullable=false)
+     */
+    private $datetime;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="time", type="time", nullable=false)
+     */
+    private $time;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="birthday", type="datetime", nullable=false)
+     */
+    private $birthday;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="checkbox", type="boolean", nullable=true)
+     */
+    private $checkbox;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="radio", type="boolean", nullable=true)
+     */
+    private $radio;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="passwordRepeated", type="string", length=255, nullable=true)
+     */
+    private $passwordrepeated;
+
+
+}
+
