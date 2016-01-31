@@ -16,6 +16,12 @@ abstract class Controller implements ControllerProviderInterface
 
     protected static $entity;
 
+    protected $template;
+
+    protected $page_title;
+    protected $page_desc;
+    protected $content;
+
     public function __construct(Application $app)
     {
         $this->app = $app;

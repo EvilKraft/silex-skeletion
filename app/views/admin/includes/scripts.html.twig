@@ -1,0 +1,86 @@
+<!-- jQuery -->
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<!--<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>-->
+
+<!-- Bootstrap 3.3.5 JS -->
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+{% if AdminLTEPlugins['dataTables'] is defined %}
+<!-- DATA TABLES -->
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/media/js/dataTables.bootstrap.min.js"></script>
+
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Select/js/dataTables.select.min.js"></script>
+
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Buttons/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
+<script type="text/javascript">
+    $.fn.dataTable.ext.buttons.select_all = {
+        text: 'select_all',
+        action: function ( e, dt, node, config ) {
+            dt.ajax.reload();
+        }
+    };
+
+    $.extend( true, $.fn.dataTable.defaults, {
+        // rowId: 'id',
+        select: {
+            style: 'multi',
+        },
+
+
+//            "searching": false,
+//            "ordering": false
+        //           "language": {
+        //"url": "{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/plugins/i18n/Russian.lang"
+        //"url": "//cdn.datatables.net/plug-ins/1.10.8/i18n/Russian.json"
+        //           }
+    } );
+</script>
+
+<!-- page script -->
+<script type="text/javascript">
+    $(document).ready(function(){
+        var table = $("#data_table").DataTable(
+                {
+                    //dom: '<Blfr>tip',
+                    dom: '<"row"<"col-sm-2"B><"col-sm-5"l><"col-sm-5"fr>><"row"<"col-sm-12"t>><"row"<"col-sm-5"i><"col-sm-7"p>>',
+                    buttons: [
+                        'select_all'
+                    ]
+                }
+        );
+
+        // table.buttons().container()
+        //         .appendTo( $('.col-sm-6:eq(0)', table.table().container() ) );
+
+        // table.buttons().container()
+        //         .appendTo( '#example_wrapper .col-sm-6:eq(0)' );
+        //table.buttons( 0, null ).container().prependTo(
+        //        table.table().container()
+        //);
+    });
+</script>
+{% endif %}
+<!-- Optionally, you can add Slimscroll and FastClick plugins.
+Both of these plugins are recommended to enhance the
+user experience. Slimscroll is required when using the
+fixed layout. -->
+
+{% if AdminLTEPlugins['slimScroll']  is defined%}
+<!-- SlimScroll -->
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+{% endif %}
+{% if AdminLTEPlugins['FastClick'] is defined %}
+<!-- FastClick -->
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/fastClick/fastclick.min.js"></script>
+{% endif %}
+
+
+<!-- AdminLTE App -->
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/js/app.min.js"></script>
+
+
+
+
+<script type="text/javascript" src="{{ app.request.basepath }}/js/admin.js"></script>

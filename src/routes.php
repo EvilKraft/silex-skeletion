@@ -10,7 +10,7 @@ $app['controllers']->convert('user', function ($id) use ($app) {
 });
 
 // Register routes.
-$app->get('/', 'App\Controller\IndexController::indexAction')
+$app->get('/', 'App\Controller\Index::indexAction')
     ->bind('homepage');
 
 $app->get('/me', 'App\Controller\UserController::meAction')

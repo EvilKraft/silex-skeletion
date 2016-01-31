@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Administration Panel</title>
+    {% include 'admin/includes/head.html.twig' with {'template_skin': app.template_skin } %}
+</head>
+<body class="{{app.template_skin}} {{app.template_layout}}">
+    <div class="wrapper">
+        <!-- Main Header -->
+        {% include 'admin/includes/header.html.twig' %}
+
+        <!-- Left side column. contains the logo and sidebar -->
+        {% include 'admin/includes/leftSidebar.html.twig' %}
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>{{page_title}}<small>{{page_desc}}</small></h1>
+                <ol class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                    <li class="active">Here</li>
+                </ol>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <!-- Your Page Content Here -->
+                {% block content %}
+                {% endblock %}
+            </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+
+        <!-- Main Footer -->
+        {% include 'admin/includes/footer.html.twig' %}
+    </div><!-- ./wrapper -->
+
+    <!-- REQUIRED JS SCRIPTS -->
+    {% include 'admin/includes/scripts.html.twig' %}
+
+
+
+{#
+    <ul class="nav">
+        <li><a href="{{ path('homepage') }}">{{ 'Home' }}</a></li>
+        {% if is_granted('ROLE_ADMIN') %}
+            <li><a href="{{ path('users') }}">{{ 'Administration / Users' }}</a></li>
+        {% endif %}
+    </ul>
+#}
+
+</body>
+</html>
