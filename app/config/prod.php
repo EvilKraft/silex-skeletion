@@ -13,8 +13,8 @@ $app['twig.options.cache'] = $app['cache.path'] . '/twig';
 $app['admin_email'] = 'noreply@silex.nothing';
 $app['site_email']  = 'noreply@silex.nothing';
 
-$app['site_title'] = 'My Silex Site';
-$app['template_skin'] = 'skin-blue';        // Possible values: skin-blue, skin-black, skin-purple, skin-yellow, skin-red, skin-green
+$app['site_title']      = 'My Silex Site';
+$app['template_skin']   = 'skin-blue';      // Possible values: skin-blue, skin-black, skin-purple, skin-yellow, skin-red, skin-green
 $app['template_layout'] = 'sidebar-mini';   // Possible values: fixed, layout-boxed, layout-top-nav, sidebar-collapse, sidebar-mini
 
 // Doctrine (db)

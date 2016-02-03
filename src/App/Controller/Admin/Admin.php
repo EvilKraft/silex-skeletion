@@ -17,15 +17,13 @@ abstract class Admin extends \App\Controller
         'FastClick'  => false,
     );
 
-    protected function initTwig(Application $app, Request $request){
+    public function __construct(Application $app)
+    {
+        parent::__construct($app);
 
-        $app['twig']->addGlobal('AdminLTEPlugins', $this->AdminLTEPlugins);
-        $app['twig']->addGlobal('left_menu_items', $this->getLeftMenuItems($app, $request->getRequestUri()));
-
-        //$app['twig']->addGlobal('loggedInUser', getUser());
-
-        $app['twig']->addGlobal('page_title', $this->page_title);
-        $app['twig']->addGlobal('page_desc', $this->page_desc);
+        if(is_null(static::$entity)){
+            throw new \Exception('Entity was not set.');
+        }
     }
 
     protected function getLeftMenuItems(Application $app, $RequestUri){
@@ -46,7 +44,7 @@ abstract class Admin extends \App\Controller
 
 
         $controllers = array(
-            array('name' => 'admin',     'title' => 'Dashboard',            'icon'  => 'fa fa-link'),
+            array('name' => 'admin_dashboard',     'title' => 'Dashboard',            'icon'  => 'fa fa-link'),
 
         //    array('name' => 'artists',   'title' => 'Artists',              'icon'  => 'fa fa-link'),
         //    array('name' => 'comments',  'title' => 'Comments',             'icon'  => 'fa fa-link'),
@@ -69,5 +67,14 @@ abstract class Admin extends \App\Controller
 
 
         return $items;
+    }
+
+    protected function initTwig(Request $request){
+        $this->twig()->addGlobal('AdminLTEPlugins', $this->AdminLTEPlugins);
+        $this->twig()->addGlobal('left_menu_items', $this->getLeftMenuItems($this->app, $request->getRequestUri()));
+
+        //$this->twig()->addGlobal('loggedInUser', getUser());
+
+        parent::initTwig($request);
     }
 }

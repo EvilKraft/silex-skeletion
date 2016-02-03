@@ -1,22 +1,82 @@
-<!doctype html>
+<!DOCTYPE html>
 <head>
-    <meta charset="utf-8">
-    <title>Title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='http://fonts.googleapis.com/css?family=Playfair+Display' rel='stylesheet' type='text/css'>
-    <link href="{{ app.request.basepath }}/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="{{ app.request.basepath }}/css/main.css" rel="stylesheet" type='text/css'>
-</head>
-<body>
-    <ul class="nav">
-        <li><a href="{{ path('homepage') }}">{{ 'Home' }}</a></li>
-       {# {% if is_granted('ROLE_ADMIN') %} #}
-            <li><a href="{{ path('users') }}">{{ 'Administration / Users' }}</a></li>
-        {# {% endif %}#}
-    </ul>
-
-    {% block content %}
+    <meta charset="UTF-8">
+    <title>{{ app.site_title }} - {{ page_title }}</title>
+    {% include 'admin/includes/head.html.twig' with {'template_skin': app.template_skin } %}
+    {% block head %}
     {% endblock %}
+</head>
+<body class="{{app.template_skin}} {{app.template_layout}}">
+    <div class="wrapper">
+        <!-- Main Header -->
+        <header class="main-header">
 
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-left: 0">
+
+                <!-- Logo -->
+                <a href="{{ path('homepage') }}" class="logo" style="background-color: inherit">
+                    <!-- mini logo for sidebar mini 50x50 pixels -->
+                    <span class="logo-mini">{{app.site_title}}</span>
+                    <!-- logo for regular state and mobile devices -->
+                    <span class="logo-lg">{{app.site_title}}</span>
+                </a>
+
+                <!-- Navbar Right Menu -->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+
+                        <!-- User Account Menu -->
+                        <li class="dropdown user user-menu">
+                            <!-- Menu Toggle Button -->
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user"></i>
+                                <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                                <span class="hidden-xs">{{ logged_user.username }} </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-right">
+                                        <a href="{{ path('logout') }}" class="btn btn-default btn-flat">Sign out</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper" style="margin-left: 0">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>{{page_title}}<small>{{page_desc}}</small></h1>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <!-- Your Page Content Here -->
+                {% block content %}
+                {% endblock %}
+            </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+
+        <!-- Main Footer -->
+        <footer class="main-footer" style="margin-left: 0">
+            <!-- To the right -->
+            <div class="pull-right hidden-xs">
+                Anything you want
+            </div>
+            <!-- Default to the left -->
+            <strong>Copyright &copy; 2016 <a href="#">k.kaluzhnikov@gmail.com</a>.</strong> All rights reserved.
+        </footer>
+    </div><!-- ./wrapper -->
+
+    <!-- REQUIRED JS SCRIPTS -->
+    {% include 'admin/includes/scripts.html.twig' %}
+    {% block scripts %}
+    {% endblock %}
 </body>
 </html>

@@ -3,6 +3,7 @@ namespace App;
 
 use Silex\Application;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Base controller class
@@ -18,8 +19,8 @@ abstract class Controller implements ControllerProviderInterface
 
     protected $template;
 
-    protected $page_title;
-    protected $page_desc;
+    protected static $page_title;
+    protected static $page_desc;
     protected $content;
 
     public function __construct(Application $app)
@@ -58,5 +59,15 @@ abstract class Controller implements ControllerProviderInterface
     protected function rawTemplate($path)
     {
         return $this->twig()->getLoader()->getSource($path);
+    }
+
+    protected function initTwig(Request $request)
+    {
+        $this->twig()->addGlobal('page_title', static::$page_title);
+        $this->twig()->addGlobal('page_desc', static::$page_desc);
+
+        $user = $this->app['security.token_storage']->getToken()->getUser();
+
+        $this->twig()->addGlobal('logged_user', $user);
     }
 }

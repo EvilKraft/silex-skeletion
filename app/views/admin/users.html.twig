@@ -21,8 +21,6 @@
                         <table id="data_table" class="table table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th></th>
-
                                     {% for field in fields %}
                                         <th>{{field}}</th>
                                     {% endfor %}
@@ -32,9 +30,7 @@
                             </thead>
                             <tbody>
                                 {% for item in items %}
-                                    <tr id="{{ attribute(item, fields|first) }}">
-                                        <td></td>
-
+                                    <tr id="row_{{ attribute(item, fields|first) }}">
                                         {% for field in fields %}
                                             <td> {{ attribute(item, field) }} </td>
                                         {% endfor %}
@@ -48,8 +44,6 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th></th>
-
                                     {% for field in fields %}
                                         <th>{{field}}</th>
                                     {% endfor %}

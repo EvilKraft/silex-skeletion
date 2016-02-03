@@ -9,12 +9,15 @@
         "symfony/security-csrf": "^3.0",
         "symfony/validator": "^3.0",
         "symfony/config": "^3.0",
-        "symfony/translation": "^3.0"
+        "symfony/translation": "^3.0",
+        "symfony/security": "^3.0",
+        "monolog/monolog": "^1.17"
     },
     "autoload": {
         "psr-0": {
             "App": "src/",
             "Entity": "src/App",
+            "Repository": "src/App",
             "Form": "src/App"
         }
     }

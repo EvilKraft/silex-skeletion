@@ -1,10 +1,16 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+$loader = require_once __DIR__.'/../vendor/autoload.php';
 
-$app = new Silex\Application();
+//$loader->add('Acme', __DIR__.'/../src/');
 
-//$app['autoloader']->registerNamespace('Acme', __DIR__.'/../src');
+class Application extends Silex\Application
+{
+    use Silex\Application\UrlGeneratorTrait;
+}
+
+$app = new Application();
+
 
 //require __DIR__ . '/../app/config/prod.php';
 require __DIR__ . '/../app/config/dev.php';

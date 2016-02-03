@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Users
@@ -10,16 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username", columns={"username"})})
  * @ORM\Entity
  */
-class Users
+class Users implements UserInterface
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="user_id", type="integer", nullable=false)
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $userId;
+    private $id;
 
     /**
      * @var string
@@ -70,16 +71,34 @@ class Users
      */
     private $image;
 
-
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="status", type="boolean", nullable=false)
+     */
+    private $status;
 
     /**
-     * Get userId
+     * Set id
+     *
+     * @param string $id
+     *
+     * @return Users
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get Id
      *
      * @return integer
      */
-    public function getUserId()
+    public function getId()
     {
-        return $this->userId;
+        return $this->id;
     }
 
     /**
@@ -209,7 +228,7 @@ class Users
      *
      * @return Users
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(\DateTime $createdAt)
     {
         $this->createdAt = $createdAt;
 
@@ -247,6 +266,51 @@ class Users
      */
     public function getImage()
     {
+        // Make sure the image is never empty.
+        if (empty($this->image)) {
+            $this->image = 'placeholder.gif';
+        }
+
         return $this->image;
+    }
+
+    /**
+     * Set status
+     *
+     * @param boolean $status
+     *
+     * @return Users
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return boolean
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getRoles()
+    {
+        return array($this->getRole());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eraseCredentials()
+    {
     }
 }

@@ -16,9 +16,20 @@
 <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
 <script type="text/javascript">
     $.fn.dataTable.ext.buttons.select_all = {
-        text: 'select_all',
+        text: 'Select All',
         action: function ( e, dt, node, config ) {
-            dt.ajax.reload();
+           // dt.ajax.reload();
+
+            var count_all      = dt.rows( {page:'current'}).data().length;
+            var count_selected = dt.rows( {page:'current', selected: true}).data().length;
+
+            if(count_selected < count_all){
+                dt.rows().select();
+                this.text('Select None');
+            }else{
+                dt.rows().deselect();
+                this.text('Select All');
+            }
         }
     };
 
@@ -41,24 +52,34 @@
 <!-- page script -->
 <script type="text/javascript">
     $(document).ready(function(){
-        var table = $("#data_table").DataTable(
-                {
-                    //dom: '<Blfr>tip',
-                    dom: '<"row"<"col-sm-2"B><"col-sm-5"l><"col-sm-5"fr>><"row"<"col-sm-12"t>><"row"<"col-sm-5"i><"col-sm-7"p>>',
-                    buttons: [
-                        'select_all'
-                    ]
+        var table = $("#data_table").DataTable({
+            //dom: '<Blfr>tip',
+            dom: '<"row"<"col-sm-2"B><"col-sm-5"l><"col-sm-5"fr>><"row"<"col-sm-12"t>><"row"<"col-sm-5"i><"col-sm-7"p>>',
+            buttons: [
+                'select_all',
+                //'copy', 'excel', 'pdf'
+            ],
+
+            columnDefs: [
+                { orderable: false, targets: -1 }
+            ]
+        });
+        table.on( 'select', function ( e, dt, type, indexes ) {
+            if ( type === 'row' ) {
+                var count_all      = dt.rows( {page:'current'}).count();
+                var count_selected = dt.rows( {page:'current', selected: true}).count();
+
+                if(count_selected == count_all){
+                    dt.button(0).text('Select None');
                 }
-        );
+            }
+        } );
+        table.on( 'deselect', function ( e, dt, type, indexes ) {
+            if ( type === 'row' ) {
+                dt.button(0).text('Select All');
+            }
+        } );
 
-        // table.buttons().container()
-        //         .appendTo( $('.col-sm-6:eq(0)', table.table().container() ) );
-
-        // table.buttons().container()
-        //         .appendTo( '#example_wrapper .col-sm-6:eq(0)' );
-        //table.buttons( 0, null ).container().prependTo(
-        //        table.table().container()
-        //);
     });
 </script>
 {% endif %}
@@ -68,19 +89,35 @@ user experience. Slimscroll is required when using the
 fixed layout. -->
 
 {% if AdminLTEPlugins['slimScroll']  is defined%}
-<!-- SlimScroll -->
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+    <!-- SlimScroll -->
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/slimScroll/jquery.slimscroll.min.js"></script>
 {% endif %}
 {% if AdminLTEPlugins['FastClick'] is defined %}
-<!-- FastClick -->
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/fastClick/fastclick.min.js"></script>
+    <!-- FastClick -->
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/fastClick/fastclick.min.js"></script>
 {% endif %}
 
+{% if AdminLTEPlugins['FastClick'] is defined %}
+    <!-- Select2 -->
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/select2/select2.full.min.js"></script>
+{% endif %}
+
+{% if AdminLTEPlugins['input-mask'] is defined %}
+    <!-- InputMask -->
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/input-mask/jquery.inputmask.js"></script>
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/input-mask/jquery.inputmask.extensions.js"></script>
+{% endif %}
+
+{% if AdminLTEPlugins['daterangepicker'] is defined %}
+    <!-- date-range-picker -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
+{% endif %}
 
 <!-- AdminLTE App -->
 <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/js/app.min.js"></script>
 
 
 
-
-<script type="text/javascript" src="{{ app.request.basepath }}/js/admin.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/js/functions.js"></script>

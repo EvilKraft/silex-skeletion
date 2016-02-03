@@ -3,28 +3,36 @@
 // Register route converters.
 // Each converter needs to check if the $id it received is actually a value,
 // as a workaround for https://github.com/silexphp/Silex/pull/768.
-$app['controllers']->convert('user', function ($id) use ($app) {
-    if ($id) {
-        return $app['repository.user']->find($id);
-    }
-});
+//$app['controllers']->convert('user', function ($id) use ($app) {
+//    if ($id) {
+//        return $app['repository.user']->find($id);
+//    }
+//});
 
 // Register routes.
-$app->get('/', 'App\Controller\Index::indexAction')
-    ->bind('homepage');
+//$app->get('/', 'App\Controller\Index::indexAction')
+//    ->bind('homepage');
+//
+//$app->get('/me', 'App\Controller\UserController::meAction')
+//    ->bind('me');
+//$app->match('/login', 'App\Controller\UserController::loginAction')
+//    ->bind('login');
+//$app->get('/logout', 'App\Controller\UserController::logoutAction')
+//    ->bind('logout');
 
-$app->get('/me', 'App\Controller\UserController::meAction')
-    ->bind('me');
-$app->match('/login', 'App\Controller\UserController::loginAction')
-    ->bind('login');
-$app->get('/logout', 'App\Controller\UserController::logoutAction')
-    ->bind('logout');
+$app->mount("/", new App\Controller\Index($app));
+
+$app->match('/login',          'App\Auth::loginAction')->bind('login');
+$app->get('/logout',           'App\Auth::logoutAction')->bind('logout');
+$app->match('/login_redirect', 'App\Auth::loginRedirectAction')->bind('login-redirect');
 
 
-$app->get('/admin', 'App\Controller\AdminController::indexAction')
-    ->bind('admin');
 
-$app->mount("/users", new App\Controller\Admin\User($app));
+$app->get('/admin', 'App\Controller\Admin\Dashboard::indexAction')
+    ->bind('admin_dashboard');
+
+$app->mount("admin/users",   new App\Controller\Admin\User($app));
+
 
 /*
 $app->get('/admin/users', 'App\Controller\AdminUserController::indexAction')

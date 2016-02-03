@@ -14,8 +14,8 @@ class User extends Admin
 
     protected $template_name = 'users';
 
-    protected $page_title = 'Users';
-    protected $page_desc  = '';
+    protected static $page_title = 'Users';
+    protected static $page_desc  = '';
 
     protected $data = array();
 
@@ -34,6 +34,10 @@ class User extends Admin
 
         $controllers->get("/",          [$this, 'index']  )->bind('users');
 
+        $controllers->match("/add",      [$this, 'addAction']   )->bind('admin_users_add');
+
+
+
         $controllers->post("/save",         [$this, 'save']  )->bind('users_save');
 
         //$controllers->post("/",         [$this, 'store']  )->bind('users_create');
@@ -44,13 +48,14 @@ class User extends Admin
 
 
         $controllers->after(function (Request $request, Response $response) use ($app) {
+            if($response->isRedirection()){ return; }
+
             if ('application/json' === $request->headers->get('Accept')) {
                 return $app->json($this->data);
             }
 
 
-            $this->initTwig($app, $request);
-
+            $this->initTwig($request);
             $response->setContent(
                 $this->twig()->render('admin/'.$this->template_name.'.html.twig', $this->data)
             );
@@ -69,6 +74,28 @@ class User extends Admin
 
         $this->data['fields'] = $this->em()->getClassMetadata(self::$entity)->getFieldNames();
         $this->data['items']  = $items;
+
+
+
+        // http://symfony.com/doc/current/book/doctrine.html
+        //  http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html#conditional-operators
+        // http://www.mendoweb.be/blog/using-repositories-doctrine-2/
+        // http://odiszapc.ru/doctrine/working-with-objects/
+
+        //   $qb = $this->em()->getRepository('\App\Entity\Drivers')->createQueryBuilder('n');
+        //   $items = $qb->where($qb->expr()->in('n.status', array(1,2,3)))->getQuery()->getResult();
+
+
+        //   $q = $this->em()->createQuery("select n from \App\Entity\Drivers n where n.name = 'Ali'");
+        //   $items = $q->getResult();
+
+        // $items = $this->em()->getRepository('\App\Entity\Drivers')->findBy(array('name' => 'Ali'));
+
+        // $query = $this->em()->createQuery("select d from \App\Entity\Drivers d where d.status=1");
+        // $query->setMaxResults(30);
+        // $items = $query->getResult();
+
+        //http://stackoverflow.com/questions/15619054/is-there-posible-to-use-createquerybuilder-for-insert-update-if-not-what-funct
 
 
         //echo '<pre>'.print_r($this->data['fields'], true).'</pre>';
@@ -107,7 +134,7 @@ class User extends Admin
 
         $entity = new self::$entity;
 
-        $form = $app['form.factory']->create(new \My\Namespace\To\Form\FormType(), $entity);
+        $form = $app['form.factory']->create(new \App\Form\FormType(), $entity);
 
         $form->handleRequest($request);
 
@@ -139,18 +166,51 @@ class User extends Admin
 
     public function store(){
         // create a new user, using POST method
+        return '';
     }
 
     public function update($id){
         // update the user #id, using PUT method
-
-
-
-
         return '';
     }
 
     public function destroy($id){
         // delete the user #id, using DELETE method
+        return '';
+    }
+
+
+    public function addAction(Request $request, Application $app)
+    {
+        $user = new \App\Entity\Users();
+        $form = $app['form.factory']->create(new \App\Form\UserType(), $user);
+
+        if ($request->isMethod('POST')) {
+            $form->bind($request);
+            if ($form->isValid()) {
+                $app['repository.user']->save($user);
+                $message = 'The user ' . $user->getUsername() . ' has been saved.';
+                $app['session']->getFlashBag()->add('success', $message);
+                // Redirect to the edit page.
+                //$redirect = $app['url_generator']->generate('admin_user_edit', array('user' => $user->getId()));
+                $redirect = $app['url_generator']->generate('admin_users');
+                return $app->redirect($redirect);
+            }
+        }
+
+        $this->initTwig($request);
+
+        $this->data['form'] = $form->createView();
+        $this->data['title'] = 'Add new user';
+
+
+        $this->template_name = 'form';
+        return '';
+
+        // $data = array(
+        //     'form' => $form->createView(),
+        //     'title' => 'Add new user',
+        //  );
+        // return $app['twig']->render('form.html.twig', $data);
     }
 }
