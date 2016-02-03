@@ -4,6 +4,9 @@ namespace App;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 
 /**
  * Base controller class
@@ -15,21 +18,17 @@ abstract class Controller implements ControllerProviderInterface
     private $em;
     private $twig;
 
-    protected static $entity;
-
+    protected $tpl_path = '';
     protected $template;
 
     protected static $page_title;
     protected static $page_desc;
-    protected $content;
+
 
     public function __construct(Application $app)
     {
         $this->app = $app;
 
-        if(is_null(static::$entity)){
-            throw new \Exception('Entity was not set.');
-        }
     }
 
     protected function em(){
@@ -61,13 +60,39 @@ abstract class Controller implements ControllerProviderInterface
         return $this->twig()->getLoader()->getSource($path);
     }
 
-    protected function initTwig(Request $request)
+    protected function initTwig()
     {
         $this->twig()->addGlobal('page_title', static::$page_title);
         $this->twig()->addGlobal('page_desc', static::$page_desc);
+    }
 
-        $user = $this->app['security.token_storage']->getToken()->getUser();
+    protected function after(Request $request, Response $response){
+        if($response->isRedirection()){ return; }
 
-        $this->twig()->addGlobal('logged_user', $user);
+       // if ('application/json' === $request->headers->get('Accept')) {
+       //     return $this->app()->json($this->data);
+       // }
+
+        if($request->isXmlHttpRequest()){
+            $response_error = $this->error;
+
+            $response_data = array('status' => 'OK', 'data' => $this->data);
+
+            if(!is_null($response_error)){
+                $response_data['status'] = 'ERROR';
+                $response_data['error']  = $response_error;
+            }
+
+            return $this->app->json($response_data);
+        }
+
+        $this->initTwig();
+        $response->setContent(
+            $this->twig()->render($this->tpl_path.$this->template.'.twig', $this->data)
+        );
+    }
+
+    public static function getTitle(){
+        return static::$page_title;
     }
 }

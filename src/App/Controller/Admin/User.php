@@ -12,10 +12,11 @@ class User extends Admin
 
     protected static $entity = '\App\Entity\Users';
 
-    protected $template_name = 'users';
+    protected $template = 'users';
 
     protected static $page_title = 'Users';
     protected static $page_desc  = '';
+    protected static $icon_class = 'fa fa-users';
 
     protected $data = array();
 
@@ -26,39 +27,27 @@ class User extends Admin
 
         $controllers->before(function (Request $request) use ($app) {
             // check for something here
-
-            //echo $request->get("_route"); exit;
         });
 
 
 
-        $controllers->get("/",          [$this, 'index']  )->bind('users');
+        $controllers->get("/",          [$this, 'index']  )->bind('admin_users');
 
         $controllers->match("/add",      [$this, 'addAction']   )->bind('admin_users_add');
 
 
 
-        $controllers->post("/save",         [$this, 'save']  )->bind('users_save');
+        $controllers->post("/save",         [$this, 'save']  )->bind('admin_users_save');
 
-        //$controllers->post("/",         [$this, 'store']  )->bind('users_create');
-        $controllers->get("/{id}",      [$this, 'show']   )->bind('users_show');
-        $controllers->get("/edit/{id}", [$this, 'edit']   )->bind('users_edit');
-        //$controllers->put("/{id}",      [$this, 'update'] )->bind('users_update');
-        $controllers->delete("/{id}",   [$this, 'destroy'])->bind('users_delete');
+        //$controllers->post("/",         [$this, 'store']  )->bind('admin_users_create');
+        $controllers->get("/{id}",      [$this, 'show']   )->bind('admin_users_show');
+        $controllers->get("/edit/{id}", [$this, 'edit']   )->bind('admin_users_edit');
+        //$controllers->put("/{id}",      [$this, 'update'] )->bind('admin_users_update');
+        $controllers->delete("/{id}",   [$this, 'destroy'])->bind('admin_users_delete');
 
 
         $controllers->after(function (Request $request, Response $response) use ($app) {
-            if($response->isRedirection()){ return; }
-
-            if ('application/json' === $request->headers->get('Accept')) {
-                return $app->json($this->data);
-            }
-
-
-            $this->initTwig($request);
-            $response->setContent(
-                $this->twig()->render('admin/'.$this->template_name.'.html.twig', $this->data)
-            );
+            $this->after($request, $response);
         });
 
         return $controllers;
@@ -66,6 +55,8 @@ class User extends Admin
 
     public function index(Request $request, Application $app){
         // show the list of users
+
+        $this->template = 'table';
 
         $this->AdminLTEPlugins['dataTables'] = true;
 
@@ -102,7 +93,7 @@ class User extends Admin
         //echo '<pre>'.print_r($this->data['items'], true).'</pre>';
 
 
-        //return $this->twig()->render('admin/users.html.twig', $this->data);
+        //return $this->twig()->render('admin/users.twig', $this->data);
         return '';
     }
 
@@ -147,7 +138,7 @@ class User extends Admin
         $item = $this->em()->getRepository(self::$entity)->find($id);
         $this->data['item']  = $item;
 
-        $this->template_name = $this->template_name.'_edit';
+        $this->template = $this->template.'_edit';
         return '';
     }
 
@@ -155,7 +146,7 @@ class User extends Admin
         // show the user #id
 
         return $this->twig()->render(
-            'Front/index.html.twig',
+            'Front/index.twig',
             [
                 'currentPage' => 'home',
                 'timezones'   => \DateTimeZone::listIdentifiers(),
@@ -198,7 +189,6 @@ class User extends Admin
             }
         }
 
-        $this->initTwig($request);
 
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new user';
@@ -206,11 +196,5 @@ class User extends Admin
 
         $this->template_name = 'form';
         return '';
-
-        // $data = array(
-        //     'form' => $form->createView(),
-        //     'title' => 'Add new user',
-        //  );
-        // return $app['twig']->render('form.html.twig', $data);
     }
 }

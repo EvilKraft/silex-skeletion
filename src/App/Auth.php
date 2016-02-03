@@ -14,7 +14,7 @@ class Auth
                 return $this->loginRedirectAction($request, $app);
         }
 
-        return $app['twig']->render('login.html.twig', array(
+        return $app['twig']->render('login.twig', array(
             'page_title' => 'Log in',
 
             'error'         => $app['security.last_error']($request),
@@ -29,15 +29,7 @@ class Auth
 
     public function loginRedirectAction(Request $request, Application $app){
         if ($app['security.authorization_checker']->isGranted('ROLE_ADMIN')) {
-            return $app->redirect($app['url_generator']->generate('admin_users'));
-        }
-
-        if ($app['security.authorization_checker']->isGranted('ROLE_CALL_OPERATOR')) {
-            return $app->redirect($app['url_generator']->generate('orders'));
-        }
-
-        if ($app['security.authorization_checker']->isGranted('ROLE_OFFICE_USER')) {
-            return $app->redirect($app['url_generator']->generate('calls'));
+            return $app->redirect($app['url_generator']->generate('admin_dashboard'));
         }
 
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {

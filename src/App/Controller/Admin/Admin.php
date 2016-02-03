@@ -4,11 +4,17 @@ namespace App\Controller\Admin;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
+
+
 /**
  * Base controller class
  */
 abstract class Admin extends \App\Controller
 {
+    protected static $entity;
+    protected static $icon_class = 'fa fa-link';
+
+    protected $tpl_path = 'admin/';
 
     protected $AdminLTEPlugins = array(
         'dataTables' => false,
@@ -26,55 +32,47 @@ abstract class Admin extends \App\Controller
         }
     }
 
-    protected function getLeftMenuItems(Application $app, $RequestUri){
+
+    public static function getIcon(){
+        return static::$icon_class;
+    }
+
+
+    protected function getLeftMenuItems(){
+
+        $current_route     = $this->app['request']->get("_route");
+        $current_route_url = $this->app['request']->getRequestUri();
+
         $items = array();
+        foreach($this->app['routes'] as $key => $route) {
+            $controller = $route->getDefault('_controller')[0];
 
-//TODO
-
-/*
-        // get all routing objects
-        $patterns = $app['routes']->getIterator(); // seems to be changed in Silex 1.1.0 !!! ... ->current()->all();
-
-        // walk through the routing objects
-        foreach ($patterns as $pattern) {
-            $match = $pattern->getPattern();
-            echo "$match<br />";
+            if(is_object($controller)){
+                if(preg_match('/App\\\Controller\\\Admin\\\(.*)$/', get_class($controller), $matches)) {
+                    if (!array_key_exists($matches[1], $items)) {
+                        $items[$matches[1]] = array(
+                            'route'  => $key,
+                            'title'  => $controller::getTitle(),
+                            'icon'   => $controller::getIcon(),
+                            'url'    => $this->app['url_generator']->generate($key),
+                            'active' => ($key == $current_route),
+                        );
+                    }
+                }
+            }
         }
-*/
-
-
-        $controllers = array(
-            array('name' => 'admin_dashboard',     'title' => 'Dashboard',            'icon'  => 'fa fa-link'),
-
-        //    array('name' => 'artists',   'title' => 'Artists',              'icon'  => 'fa fa-link'),
-        //    array('name' => 'comments',  'title' => 'Comments',             'icon'  => 'fa fa-link'),
-        //    array('name' => 'likes',     'title' => 'Likes',                'icon'  => 'fa fa-link'),
-
-            array('name' => 'users',     'title' => 'Users',                'icon'  => 'fa fa-users'),
-        );
-
-        foreach($controllers as $controller){
-            $items[] = array(
-                'url'    => $app['url_generator']->generate($controller['name']),
-                'title'  => $controller['title'],
-                'active' => preg_match('/^'.$controller['name'].'.+$/', $RequestUri),
-                'icon'   => $controller['icon'],
-            );
-        }
-
-        //echo $RequestUri;
-
-
 
         return $items;
     }
 
-    protected function initTwig(Request $request){
+
+    protected function initTwig(){
         $this->twig()->addGlobal('AdminLTEPlugins', $this->AdminLTEPlugins);
-        $this->twig()->addGlobal('left_menu_items', $this->getLeftMenuItems($this->app, $request->getRequestUri()));
+        $this->twig()->addGlobal('left_menu_items', $this->getLeftMenuItems());
 
-        //$this->twig()->addGlobal('loggedInUser', getUser());
+        $logged_user = $this->app['security.token_storage']->getToken()->getUser();
+        $this->twig()->addGlobal('logged_user', $logged_user);
 
-        parent::initTwig($request);
+        parent::initTwig();
     }
 }

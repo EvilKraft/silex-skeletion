@@ -45,16 +45,18 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
                 //return new App\UserProvider($app);
                 return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
             }),
-
         ),
     ),
     'security.role_hierarchy' => array(
         'ROLE_ADMIN' => array('ROLE_USER'),
     ),
     'security.access_rules' => array(
-        array('^/login$', 'IS_AUTHENTICATED_ANONYMOUSLY'),
-        array('^/admin', 'ROLE_ADMIN'),
-        array('^.*$', 'IS_AUTHENTICATED_FULLY'),
+        array('^/login$',                  'IS_AUTHENTICATED_ANONYMOUSLY'),
+        array('^/register',                'IS_AUTHENTICATED_ANONYMOUSLY'),
+   //     array('^/',                        'IS_AUTHENTICATED_ANONYMOUSLY'),
+        array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
+
+    //    array('^.*$', 'IS_AUTHENTICATED_FULLY'),
     ),
 ));
 
@@ -69,7 +71,7 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 
 
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
-    'monolog.logfile' => __DIR__.'/development.log',
+    'monolog.logfile' => __DIR__.'/../app/logs/development.log',
 ));
 
 // Register repositories.
@@ -81,7 +83,7 @@ $app['repository.user'] = $app->share(function ($app) {
 // Protect admin urls.
 $app->before(function (Request $request) use ($app) {
 //    $protected = array(
-//        '/admin/' => 'ROLE_ADMIN',
+//        '/'.$app['admin_dir'].'/' => 'ROLE_ADMIN',
 //        '/me' => 'ROLE_USER',
 //    );
 //    $path = $request->getPathInfo();
