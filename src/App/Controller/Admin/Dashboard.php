@@ -10,11 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 class Dashboard extends Admin
 {
     protected static $entity = '';
+    protected static $form   = '';
 
     protected $template     = 'dashboard';
 
     protected static $page_title = 'Dashboard';
     protected static $page_desc  = '';
+    protected static $icon_class = 'fa fa-dashboard';
 
     protected $data = array();
 

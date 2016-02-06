@@ -6,25 +6,19 @@
             <li class="header">MENU</li>
 
             {% for menu_item in left_menu_items %}
-                {#
-                {% if is_granted('ROLE_ADMIN') %}
-
-                {% endif %}
-                #}
-
                 <li {% if menu_item['active'] == true %} class="active" {% endif %}>
-                    <a href="{{menu_item['url']}}"><i class="{{menu_item['icon']}}"></i> <span>{{menu_item['title']}}</span></a>
+                    <a href="{{menu_item['url']}}"><i class="{{menu_item['icon']}}"></i> <span>{{menu_item['title']}}</span> {% if menu_item['children'] is defined %}{{ '<i class="fa fa-angle-left pull-right"></i>'}}{% endif %}</a>
+                    {% if menu_item['children'] is defined %}
+                        <ul class="treeview-menu">
+                            {% for child in menu_item['children'] %}
+                                <li {% if child['active'] == true %} class="active" {% endif %}>
+                                    <a href="{{child['url']}}"><i class="{{child['icon']}}"></i> <span>{{child['title']}}</span></a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </li>
             {% endfor %}
-
-            <!-- Optionally, you can add icons to the links -->
-            <li class="treeview">
-                <a href="#"><i class="fa fa-line-chart"></i> <span>Reports</span> <i class="fa fa-angle-left pull-right"></i></a>
-                <ul class="treeview-menu">
-                    <li><a href="#">Report 1</a></li>
-                    <li><a href="#">Report 2</a></li>
-                </ul>
-            </li>
         </ul><!-- /.sidebar-menu -->
     </section>
     <!-- /.sidebar -->

@@ -136,7 +136,7 @@
 
 {% block form_row %}
 {% spaceless %}
-    <div class="control-group{% if not form.vars.valid %} error{% endif %}">
+    <div class="form-group{% if not form.vars.valid %} error{% endif %}">
         {{ form_label(form, label|default(null)) }}
         <div class="controls">
             {{ form_widget(form) }}

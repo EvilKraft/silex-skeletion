@@ -6,11 +6,11 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
 class User extends Admin
 {
 
     protected static $entity = '\App\Entity\Users';
+    protected static $form   = '\App\Form\UserType';
 
     protected $template = 'users';
 
@@ -33,17 +33,15 @@ class User extends Admin
 
         $controllers->get("/",          [$this, 'index']  )->bind('admin_users');
 
-        $controllers->match("/add",      [$this, 'addAction']   )->bind('admin_users_add');
+        $controllers->match("/create",    [$this, 'createAction']   )->bind('admin_users_create')->method('GET|POST');
 
+    //    $controllers->post("/save",     [$this, 'save']  )->bind('admin_users_save');
 
-
-        $controllers->post("/save",         [$this, 'save']  )->bind('admin_users_save');
-
-        //$controllers->post("/",         [$this, 'store']  )->bind('admin_users_create');
-        $controllers->get("/{id}",      [$this, 'show']   )->bind('admin_users_show');
-        $controllers->get("/edit/{id}", [$this, 'edit']   )->bind('admin_users_edit');
-        //$controllers->put("/{id}",      [$this, 'update'] )->bind('admin_users_update');
-        $controllers->delete("/{id}",   [$this, 'destroy'])->bind('admin_users_delete');
+    //    $controllers->post("/",         [$this, 'store']  )->bind('admin_users_create');
+        $controllers->get("/{id}",        [$this, 'show']   )->bind('admin_users_show');
+        $controllers->get("/edit/{id}",   [$this, 'edit']   )->bind('admin_users_edit');
+        $controllers->put("/{id}",        [$this, 'update'] )->bind('admin_users_update');
+        $controllers->delete("/{id}",     [$this, 'destroy'])->bind('admin_users_delete');
 
 
         $controllers->after(function (Request $request, Response $response) use ($app) {
@@ -67,6 +65,7 @@ class User extends Admin
         $this->data['items']  = $items;
 
 
+        //dump($items);
 
         // http://symfony.com/doc/current/book/doctrine.html
         //  http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html#conditional-operators
@@ -114,7 +113,7 @@ class User extends Admin
             return $this->redirectToRoute('task_success');
         }
 
-        return new Response($app['twig']->render('form.html.twig', array(
+        return new Response($app['twig']->render('form.twig', array(
             'form' => $form->createView(),
         )));
 
@@ -171,21 +170,32 @@ class User extends Admin
     }
 
 
-    public function addAction(Request $request, Application $app)
+    public function createAction(Request $request, Application $app)
     {
-        $user = new \App\Entity\Users();
-        $form = $app['form.factory']->create(new \App\Form\UserType(), $user);
+        $user = new static::$entity();
+        dump($user);
+        exit;
+
+        $form = $app['form.factory']->create(new static::$form(), $user, array('method' => 'POST', 'attr' => array('role' => 'form')));
 
         if ($request->isMethod('POST')) {
-            $form->bind($request);
+
+            $form->handleRequest($request);
+            //$form->bind($request);
+
             if ($form->isValid()) {
+
+                //$this->em()->getRepository(static::$entity)->save($user);
                 $app['repository.user']->save($user);
-                $message = 'The user ' . $user->getUsername() . ' has been saved.';
+
+/*
+                $message = 'The user ' . $user->getUsername() . ' has been created.';
                 $app['session']->getFlashBag()->add('success', $message);
                 // Redirect to the edit page.
                 //$redirect = $app['url_generator']->generate('admin_user_edit', array('user' => $user->getId()));
                 $redirect = $app['url_generator']->generate('admin_users');
                 return $app->redirect($redirect);
+*/
             }
         }
 
@@ -194,7 +204,7 @@ class User extends Admin
         $this->data['title'] = 'Add new user';
 
 
-        $this->template_name = 'form';
+        $this->template = 'form';
         return '';
     }
 }

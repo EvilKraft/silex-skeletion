@@ -12,23 +12,34 @@ class UserType extends AbstractType
     {
         $builder
             ->add('username', 'text', array(
-                'constraints' => new Assert\NotBlank(),
+                'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
+                'attr' => array('class' => 'form-control', 'placeholder' => 'Username'),
             ))
             ->add('password', 'repeated', array(
                 'type'            => 'password',
                 'invalid_message' => 'The password fields must match.',
-                'options'         => array('required' => false),
+                'options'         => array(
+                    'attr' => array('class' => 'form-control'),
+                ),
                 'first_options'   => array('label' => 'Password'),
                 'second_options'  => array('label' => 'Repeat Password'),
-                'required' => FALSE,
+                'required'        => false,
             ))
             ->add('mail', 'email', array(
                 'constraints' => array(new Assert\NotBlank(), new Assert\Email()),
+                'attr' => array('class' => 'form-control', 'placeholder' => 'user@email.com'),
             ))
             ->add('role', 'choice', array(
-                'choices' => array('ROLE_USER' => 'User', 'ROLE_ADMIN' => 'Admin')
+                'constraints' => array(new Assert\NotBlank()),
+                'choices' => array('ROLE_USER' => 'User', 'ROLE_ADMIN' => 'Admin'),
+                'attr' => array('class' => 'form-control'),
+                'placeholder' => 'Choose a role',
             ))
-            ->add('save', 'submit');
+            ->add('status', 'choice', array(
+                'choices' => array('1' => 'Active', '0' => 'Inactive'),
+                'attr' => array('class' => 'zzzz'),
+                'expanded' => true,
+            ));
     }
 
     public function getName()

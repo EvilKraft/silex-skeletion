@@ -22,13 +22,12 @@ $app->register(new Silex\Provider\ValidatorServiceProvider());
 $app->register(new Silex\Provider\TranslationServiceProvider());
 //$app->register(new Silex\Provider\SwiftmailerServiceProvider());
 
+$app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
         // Any other URL requires auth.
         'index' => array(
-            //'security' => $app['debug'] ? false : true,
-
             'pattern' => '^.*$',
             'form'      => array(
                 'login_path'         => '/login',
@@ -43,7 +42,8 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
             'logout'    => array('logout_path' => '/logout'),
             'users'     => $app->share(function() use ($app) {
                 //return new App\UserProvider($app);
-                return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
+              //  return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
+                return new App\Repository\UserRepository($app['orm.em'], $app['orm.em']->getClassMetadata('App\Entity\Users'));
             }),
         ),
     ),
@@ -53,7 +53,6 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.access_rules' => array(
         array('^/login$',                  'IS_AUTHENTICATED_ANONYMOUSLY'),
         array('^/register',                'IS_AUTHENTICATED_ANONYMOUSLY'),
-   //     array('^/',                        'IS_AUTHENTICATED_ANONYMOUSLY'),
         array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
 
     //    array('^.*$', 'IS_AUTHENTICATED_FULLY'),
@@ -69,16 +68,44 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => array(__DIR__ . '/../app/views')
 ));
 
+if($app['debug']){
+    $app->register(new Silex\Provider\MonologServiceProvider(), array(
+        'monolog.logfile' => __DIR__.'/../app/logs/development.log',
+    ));
 
-$app->register(new Silex\Provider\MonologServiceProvider(), array(
-    'monolog.logfile' => __DIR__.'/../app/logs/development.log',
-));
+
+    $app->register(new Silex\Provider\HttpFragmentServiceProvider());
+
+    $app->register(new Silex\Provider\WebProfilerServiceProvider(), array(
+        'profiler.cache_dir' => __DIR__.'/../app/cache/profiler',
+        'profiler.mount_prefix' => '/_profiler', // this is the default
+    ));
+
+    $app->register(new Silex\Provider\DebugServiceProvider(), array(
+        'debug.max_items' => 250, // this is the default
+        'debug.max_string_length' => -1, // this is the default
+    ));
+
+    $app->register(new Sorien\Provider\DoctrineProfilerServiceProvider());
+
+    //dump($my_var);
+}
+
 
 // Register repositories.
 $app['repository.user'] = $app->share(function ($app) {
-    return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
+    return new App\Repository\UserRepository($app['orm.em'], $app['orm.em']->getClassMetadata('App\Entity\Users'));
 });
 
+
+/*
+$app->before(function (Request $request) {
+    if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+        $data = json_decode($request->getContent(), true);
+        $request->request = new ParameterBag(is_array($data) ? $data : array());
+    }
+});
+*/
 
 // Protect admin urls.
 $app->before(function (Request $request) use ($app) {

@@ -1,8 +1,8 @@
 {% extends 'admin/layout.twig' %}
 
-{% block head %}
-    {{ parent() }}
-{% endblock %}
+{% set route_create = app.request.get('_route') ~ '_create' %}
+{% set route_edit   = app.request.get('_route') ~ '_update' %}
+{% set route_delete = app.request.get('_route') ~ '_delete' %}
 
 {% block content %}
     <div class="row">
@@ -11,7 +11,7 @@
                 <div class="box-header">
                     <h3 class="box-title">Data Table With Full Features</h3>
                     <div class="pull-right">
-                        <a href="#" class="btn btn-success" title="Add new element"><i class="glyphicon glyphicon-plus"></i></a>
+                        <a href="{{ path(route_create) }}" class="btn btn-success" title="Add new element"><i class="glyphicon glyphicon-plus"></i></a>
                         <a href="#" class="btn btn-danger" title="Delete selected elements"><i class="glyphicon glyphicon-trash"></i></a>
                     </div>
                 </div><!-- /.box-header -->
@@ -35,8 +35,8 @@
                                         {% endfor %}
 
                                         <td>
-                                            <a href="#"><i class="fa fa-edit"></i></a>
-                                            <a href="#"><i class="fa fa-remove"></i></a>
+                                            <a href="{{ path(route_edit, {'id': attribute(item, fields|first) }) }}"><i class="fa fa-edit"></i></a>
+                                            <a href="javascript:void(0);" onclick="deleteItem('{{ path(route_delete, {'id': attribute(item, fields|first) }) }}');"><i class="fa fa-remove"></i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}
