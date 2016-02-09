@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+
 /**
  * Users
  *
@@ -230,7 +231,7 @@ class Users implements UserInterface
      */
     public function setCreatedAt(\DateTime $createdAt)
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = $createdAt->format('U');
 
         return $this;
     }

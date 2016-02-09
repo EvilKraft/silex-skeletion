@@ -3,11 +3,15 @@
 namespace App\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Doctrine\ORM\NoResultException;
+
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * User repository
@@ -15,17 +19,67 @@ use Doctrine\ORM\NoResultException;
 class UserRepository extends EntityRepository implements RepositoryInterface, UserProviderInterface
 {
 
-    public function save($item)
+    private $passwordEncoder;
+
+    public function __construct($em, ClassMetadata $class, PasswordEncoderInterface $passwordEncoder){
+
+        $this->passwordEncoder = $passwordEncoder;
+
+        parent::__construct($em, $class);
+    }
+
+
+    public function save(UserInterface $item)
     {
-        // TODO
-        // if($item instanceof $this->getEntityName())
+        $class = get_class($item);
+        if (!$this->supportsClass($class)) {
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $class));
+        }
+
+        if(is_null($item->getId())){
+            $item->setCreatedAt(new \DateTime());
+
+        }
+
+
+        // If the password was changed, re-encrypt it.
+        if (strlen($item->getPassword()) != 88) {
+            $item->setSalt(uniqid(mt_rand()));
+            $item->setPassword($this->passwordEncoder->encodePassword($item->getPassword(), $item->getSalt()));
+        }
+
+
+        if($item->getImage() instanceof UploadedFile){
+            $item->setImage($this->processImage($item->getImage()));
+        }else{
+            $item->setImage('http://www.gravatar.com/avatar/'.md5(trim($item->getMail())));
+        }
 
         $this->_em->persist($item);
         $this->_em->flush();
     }
 
+    public function delete(UserInterface $item){
+        $class = get_class($item);
+        if (!$this->supportsClass($class)) {
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $class));
+        }
 
+        $this->_em->remove($item);
+        $this->_em->flush();
+    }
 
+    protected function processImage(UploadedFile $uploaded_file)
+    {
+        $path = UPLOADS_PATH .'/avatars/';
+        //getClientOriginalName() => Returns the original file name.
+
+        $file_name = sha1(uniqid(mt_rand(), true)).'.'.$uploaded_file->guessExtension();
+
+        $uploaded_file->move($path, $file_name);
+
+        return $file_name;
+    }
     /**
      * {@inheritDoc}
      */

@@ -6,9 +6,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\ExceptionHandler;
 
-// Register ErrorHandlers
-ErrorHandler::register();
-ExceptionHandler::register($app['debug']);
 
 // Register service providers.
 $app->register(new Silex\Provider\DoctrineServiceProvider());
@@ -23,6 +20,19 @@ $app->register(new Silex\Provider\TranslationServiceProvider());
 //$app->register(new Silex\Provider\SwiftmailerServiceProvider());
 
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
+
+
+// Register repositories.
+$app['repository.user'] = $app->share(function ($app) {
+    // create a dummy user to get the encoder
+    $user = new App\Entity\Users();
+
+    return new App\Repository\UserRepository(
+        $app['orm.em'],
+        $app['orm.em']->getClassMetadata('App\Entity\Users'),
+        $app['security.encoder_factory']->getEncoder($user)
+    );
+});
 
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
@@ -43,7 +53,7 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
             'users'     => $app->share(function() use ($app) {
                 //return new App\UserProvider($app);
               //  return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
-                return new App\Repository\UserRepository($app['orm.em'], $app['orm.em']->getClassMetadata('App\Entity\Users'));
+                return $app['repository.user'];
             }),
         ),
     ),
@@ -53,7 +63,7 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.access_rules' => array(
         array('^/login$',                  'IS_AUTHENTICATED_ANONYMOUSLY'),
         array('^/register',                'IS_AUTHENTICATED_ANONYMOUSLY'),
-        array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
+        array('^/'.$app['admin_dir'].'.*', 'IS_AUTHENTICATED_ANONYMOUSLY'),
 
     //    array('^.*$', 'IS_AUTHENTICATED_FULLY'),
     ),
@@ -69,6 +79,7 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 ));
 
 if($app['debug']){
+
     $app->register(new Silex\Provider\MonologServiceProvider(), array(
         'monolog.logfile' => __DIR__.'/../app/logs/development.log',
     ));
@@ -92,10 +103,7 @@ if($app['debug']){
 }
 
 
-// Register repositories.
-$app['repository.user'] = $app->share(function ($app) {
-    return new App\Repository\UserRepository($app['orm.em'], $app['orm.em']->getClassMetadata('App\Entity\Users'));
-});
+
 
 
 /*
@@ -163,6 +171,13 @@ $app->before(function (Request $request) use ($app) {
         $my_dump = $secured; var_dump($my_dump); echo '<pre>'.print_r($my_dump, true).'</pre>';
     */
 });
+
+//need to use put, delete, patch, options methods
+Request::enableHttpMethodParameterOverride();
+
+// Register ErrorHandlers
+ErrorHandler::register();
+ExceptionHandler::register($app['debug']);
 
 // Register the error handler.
 $app->error(function (\Exception $e, $code) use ($app) {

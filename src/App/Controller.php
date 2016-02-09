@@ -6,7 +6,6 @@ use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
 /**
  * Base controller class
  */
@@ -23,6 +22,8 @@ abstract class Controller implements ControllerProviderInterface
     protected static $page_title;
     protected static $page_desc;
 
+    protected $data  = array();
+    protected $error;
 
     public function __construct(Application $app)
     {
@@ -73,13 +74,11 @@ abstract class Controller implements ControllerProviderInterface
        // }
 
         if($request->isXmlHttpRequest()){
-            $response_error = $this->error;
-
             $response_data = array('status' => 'OK', 'data' => $this->data);
 
-            if(!is_null($response_error)){
+            if(!is_null($this->error)){
                 $response_data['status'] = 'ERROR';
-                $response_data['error']  = $response_error;
+                $response_data['error']  = $this->error;
             }
 
             return $this->app->json($response_data);

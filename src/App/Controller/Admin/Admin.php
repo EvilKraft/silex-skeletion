@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class Admin extends \App\Controller
 {
     protected static $entity;
+
+    protected $cancel_route;
+
     protected static $form;
     protected static $icon_class = 'fa fa-circle-o';
 
@@ -23,6 +26,8 @@ abstract class Admin extends \App\Controller
         'slimScroll' => false,
         'FastClick'  => false,
     );
+
+    protected $showFields = array();
 
     public function __construct(Application $app)
     {
@@ -57,7 +62,7 @@ abstract class Admin extends \App\Controller
                         $items[$matches[1]] = array(
                             'title'  => $controller::getTitle(),
                             'icon'   => $controller::getIcon(),
-                            'url'    => $this->app['url_generator']->generate($key),
+                            'url'    => $this->app->path($key),
                             'active' => ($key == $current_route),
                         );
                     }
@@ -85,6 +90,8 @@ abstract class Admin extends \App\Controller
     protected function initTwig(){
         $this->twig()->addGlobal('AdminLTEPlugins', $this->AdminLTEPlugins);
         $this->twig()->addGlobal('left_menu_items', $this->getLeftMenuItems());
+
+        $this->twig()->addGlobal('cancel_route', $this->cancel_route);
 
         $logged_user = $this->app['security.token_storage']->getToken()->getUser();
         $this->twig()->addGlobal('logged_user', $logged_user);

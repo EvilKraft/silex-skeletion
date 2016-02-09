@@ -12,14 +12,14 @@ class User extends Admin
     protected static $entity = '\App\Entity\Users';
     protected static $form   = '\App\Form\UserType';
 
-    protected $template = 'users';
+    protected $template     = 'users';
+    protected $cancel_route = 'admin_users';
 
     protected static $page_title = 'Users';
     protected static $page_desc  = '';
     protected static $icon_class = 'fa fa-users';
 
-    protected $data = array();
-
+    protected $showFields = array('id', 'username', 'mail', 'role', 'createdAt', 'status');
 
     public function connect(Application $app)
     {
@@ -31,21 +31,20 @@ class User extends Admin
 
 
 
-        $controllers->get("/",          [$this, 'index']  )->bind('admin_users');
+        $controllers->get("/",                   [$this, 'index']            )->bind('admin_users');
 
-        $controllers->match("/create",    [$this, 'createAction']   )->bind('admin_users_create')->method('GET|POST');
+        $controllers->delete("/delete_selected", [$this, 'destroyCollection'])->bind('admin_users_deleteSelected');
 
-    //    $controllers->post("/save",     [$this, 'save']  )->bind('admin_users_save');
+        $controllers->get("/create",             [$this, 'create']           )->bind('admin_users_create');
+        $controllers->post("/",                  [$this, 'create']           )->bind('admin_users_store');
 
-    //    $controllers->post("/",         [$this, 'store']  )->bind('admin_users_create');
-        $controllers->get("/{id}",        [$this, 'show']   )->bind('admin_users_show');
-        $controllers->get("/edit/{id}",   [$this, 'edit']   )->bind('admin_users_edit');
-        $controllers->put("/{id}",        [$this, 'update'] )->bind('admin_users_update');
-        $controllers->delete("/{id}",     [$this, 'destroy'])->bind('admin_users_delete');
+        $controllers->get("/{id}",                [$this, 'update']          )->bind('admin_users_edit');
+        $controllers->put("/{id}",                [$this, 'update']          )->bind('admin_users_update');
+        $controllers->delete("/{id}",             [$this, 'destroy']         )->bind('admin_users_delete');
 
 
         $controllers->after(function (Request $request, Response $response) use ($app) {
-            $this->after($request, $response);
+            return $this->after($request, $response);
         });
 
         return $controllers;
@@ -58,14 +57,11 @@ class User extends Admin
 
         $this->AdminLTEPlugins['dataTables'] = true;
 
+        $this->data['items']  = $this->em()->getRepository(self::$entity)->findAll();
+        $this->data['fields'] = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
 
-        $items = $this->em()->getRepository(self::$entity)->findAll();
+        //dump($this->data['fields']);
 
-        $this->data['fields'] = $this->em()->getClassMetadata(self::$entity)->getFieldNames();
-        $this->data['items']  = $items;
-
-
-        //dump($items);
 
         // http://symfony.com/doc/current/book/doctrine.html
         //  http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html#conditional-operators
@@ -96,115 +92,100 @@ class User extends Admin
         return '';
     }
 
-    public function save(Request $request, Application $app){
-
-        $em = $app['orm.em'];
-
-        $entity = new self::$entity;
-
-        $form = $app['form.factory']->create(new \App\Form\UserFormType(), $entity);
-
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
-            $em->persist($entity);
-            $em->flush();
-
-            return $this->redirectToRoute('task_success');
-        }
-
-        return new Response($app['twig']->render('form.twig', array(
-            'form' => $form->createView(),
-        )));
-
-
-
-
-        $values = $request->request->all();
-
-        $entity = new self::$entity;
-
-        $form = $app['form.factory']->create(new \App\Form\FormType(), $entity);
-
-        $form->handleRequest($request);
-
-        exit;
-    }
-
-    public function edit($id){
-        // show edit form
-
-        $item = $this->em()->getRepository(self::$entity)->find($id);
-        $this->data['item']  = $item;
-
-        $this->template = $this->template.'_edit';
-        return '';
-    }
-
-    public function show($id){
-        // show the user #id
-
-        return $this->twig()->render(
-            'Front/index.twig',
-            [
-                'currentPage' => 'home',
-                'timezones'   => \DateTimeZone::listIdentifiers(),
-                'edition'     => '',
-            ]
-        );
-    }
-
-    public function store(){
-        // create a new user, using POST method
-        return '';
-    }
-
-    public function update($id){
-        // update the user #id, using PUT method
-        return '';
-    }
-
-    public function destroy($id){
-        // delete the user #id, using DELETE method
-        return '';
-    }
-
-
-    public function createAction(Request $request, Application $app)
+    // create a new user, using POST method
+    public function create(Request $request, Application $app)
     {
         $user = new static::$entity();
-        dump($user);
-        exit;
 
-        $form = $app['form.factory']->create(new static::$form(), $user, array('method' => 'POST', 'attr' => array('role' => 'form')));
+        $form = $app['form.factory']->create(new static::$form(), $user, array(
+            'method' => 'POST',
+            'action' => $app->path('admin_users_store'),
+            'attr'   => array('role' => 'form')
+        ));
 
         if ($request->isMethod('POST')) {
 
             $form->handleRequest($request);
-            //$form->bind($request);
 
             if ($form->isValid()) {
-
-                //$this->em()->getRepository(static::$entity)->save($user);
                 $app['repository.user']->save($user);
 
-/*
-                $message = 'The user ' . $user->getUsername() . ' has been created.';
-                $app['session']->getFlashBag()->add('success', $message);
-                // Redirect to the edit page.
-                //$redirect = $app['url_generator']->generate('admin_user_edit', array('user' => $user->getId()));
-                $redirect = $app['url_generator']->generate('admin_users');
-                return $app->redirect($redirect);
-*/
+                $app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been created.');
+                return $app->redirect($app->path($this->cancel_route));
             }
         }
-
 
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new user';
 
+        $this->template = 'form';
+        return '';
+    }
+
+    // update the user #id, using PUT method
+    public function update($id){
+        $user = $this->em()->getRepository(self::$entity)->find($id);
+
+        if(is_null($user)){
+            $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
+            return $this->app->redirect($this->app->path($this->cancel_route));
+        }
+
+        $form = $this->app['form.factory']->create(new static::$form(), $user, array(
+            'method' => 'PUT',
+            'action' => $this->app->path('admin_users_update', array('id' => $id)),
+            'attr'   => array('role' => 'form')
+        ));
+
+        if ($this->app['request']->isMethod('PUT')) {
+
+            $form->handleRequest($this->app['request']);
+
+            if ($form->isValid()) {
+                $this->app['repository.user']->save($user);
+
+                $this->app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been updated.');
+                return $this->app->redirect($this->app->path($this->cancel_route));
+            }
+        }
+
+        $this->data['form'] = $form->createView();
+        $this->data['title'] = 'Edit User';
 
         $this->template = 'form';
         return '';
     }
+
+    // delete the user #id, using DELETE method
+    public function destroy($id){
+        $user = $this->em()->getRepository(self::$entity)->find($id);
+
+        if(is_null($user)){
+            $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
+            return $this->app->redirect($this->app->path($this->cancel_route));
+        }
+
+        $this->app['repository.user']->delete($user);
+
+        $this->app['session']->getFlashBag()->add('success', 'User was deleted!');
+        return '';
+    }
+
+    public function destroyCollection(){
+        $ids = $this->app['request']->get('ids');
+
+        if(!is_array($ids)){
+            $ids = array($ids);
+        }
+
+        $qb = $this->em()->createQueryBuilder()
+            ->delete(static::$entity, 't')
+            ->where('t.id IN (:ids)')
+            ->setParameter('ids', $ids);
+        $qb->getQuery()->execute();
+
+        $this->app['session']->getFlashBag()->add('success', 'Users were deleted!');
+        return '';
+    }
+
 }

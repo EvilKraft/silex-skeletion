@@ -4,33 +4,22 @@
 {% block content %}
 <div class="row">
     <div class="col-xs-6">
-        {% set alertTypeAvaillable = [ 'info', 'success', 'warning', 'danger'] %}
-        {% for alert in alertTypeAvaillable %}
-            {% for message in app.session.getFlashBag.get(alert) %}
-                <div class="callout callout-{{ alert }}">
-                    <h4>Warning!</h4>
-                    <p>{{ message }}</p>
-                </div>
-            {% endfor %}
-        {% endfor %}
+        {% include 'admin/includes/alerts.twig' %}
+
         <div class="box ">
             <div class="box-header with-border">
                 <h3 class="box-title">{{ title }}</h3>
             </div><!-- /.box-header -->
-            {#
-            <form rele="form" action="" method="post" {{ form_enctype(form) }}>
-                #}
-                {{ form_start(form) }}
+
+            {{ form_start(form) }}
                 <div class="box-body">
                     {{ form_widget(form) }}
                 </div>
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-default">Cancel</button>
+                    <a class="btn btn-default" href="{{ path(cancel_route) }}">Cancel</a>
                     <button type="submit" class="btn btn-primary pull-right">Submit</button>
                 </div>
-
-                {{ form_end(form) }}
-            {#</form>#}
+            {{ form_end(form) }}
         </div>
     </div>
 

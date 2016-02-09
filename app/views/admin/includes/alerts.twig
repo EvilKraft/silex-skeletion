@@ -1,0 +1,15 @@
+{% set alertTypeAvaillable = [
+    {alert: 'info',    icon: "fa fa-info"},
+    {alert: 'success', icon: "fa fa-check"},
+    {alert: 'warning', icon: "fa fa-warning"},
+    {alert: 'danger',  icon: "fa fa-ban"}
+] %}
+{% for alertType in alertTypeAvaillable %}
+    {% for message in app.session.getFlashBag.get(alertType.alert) %}
+        <div class="alert alert-{{ alertType.alert }} alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h4><i class="icon {{ alertType.icon }}"></i> {{ alertType.alert|title }}!</h4>
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}

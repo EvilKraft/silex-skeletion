@@ -51,8 +51,9 @@
 
 <!-- page script -->
 <script type="text/javascript">
+    var table;
     $(document).ready(function(){
-        var table = $("#data_table").DataTable({
+         table = $("#data_table").DataTable({
             //dom: '<Blfr>tip',
             dom: '<"row"<"col-sm-2"B><"col-sm-5"l><"col-sm-5"fr>><"row"<"col-sm-12"t>><"row"<"col-sm-5"i><"col-sm-7"p>>',
             buttons: [
@@ -79,6 +80,7 @@
                 dt.button(0).text('Select All');
             }
         } );
+
 
     });
 </script>
@@ -121,3 +123,4 @@ fixed layout. -->
 
 
 <script type="text/javascript" src="{{ app.request.basepath }}/js/functions.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/js/admin.js"></script>

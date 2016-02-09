@@ -24,18 +24,18 @@ class Auth
     public function logoutAction(Request $request, Application $app)
     {
         $app['session']->clear();
-        return $app->redirect($app['url_generator']->generate('login'));
+        return $app->redirect($app->path('login'));
     }
 
     public function loginRedirectAction(Request $request, Application $app){
         if ($app['security.authorization_checker']->isGranted('ROLE_ADMIN')) {
-            return $app->redirect($app['url_generator']->generate('admin_dashboard'));
+            return $app->redirect($app->path('admin_dashboard'));
         }
 
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $app->redirect($app['url_generator']->generate('homepage'));
+            return $app->redirect($app->path('homepage'));
         }
 
-        return $app->redirect($app['url_generator']->generate('login'));
+        return $app->redirect($app->path('login'));
     }
 }

@@ -13,7 +13,6 @@ class UserProvider implements UserProviderInterface
     }
     public function loadUserByUsername($username)
     {
-        //$this->app['monolog']->addDebug('xxxUSERNAME: ' . $username);
         $stmt = $this->app['db']->executeQuery("SELECT * FROM user WHERE username = ? OR mail = ?", array($username, $username));
         if (!$user = $stmt->fetch()) {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
