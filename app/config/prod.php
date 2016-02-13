@@ -54,7 +54,6 @@ $app['orm.em.options'] = array(
 );
 
 // SwiftMailer
-// See http://silex.sensiolabs.org/doc/providers/swiftmailer.html
 $app['swiftmailer.options'] = array(
     'host' => 'host',
     'port' => '25',

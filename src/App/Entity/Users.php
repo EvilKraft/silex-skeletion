@@ -3,16 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
-
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
  * Users
  *
- * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username", columns={"username"})})
+ * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username_idx", columns={"username"})})
  * @ORM\Entity
  */
-class Users implements UserInterface
+class Users implements AdvancedUserInterface, \Serializable
 {
     /**
      * @var integer
@@ -33,6 +32,13 @@ class Users implements UserInterface
     /**
      * @var string
      *
+     * @ORM\Column(name="email", type="string", length=255, nullable=false)
+     */
+    private $email;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="salt", type="string", length=23, nullable=false)
      */
     private $salt;
@@ -47,16 +53,9 @@ class Users implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="mail", type="string", length=255, nullable=false)
+     * @ORM\Column(name="roles", type="string", length=255, nullable=false)
      */
-    private $mail;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="role", type="string", length=255, nullable=false)
-     */
-    private $role;
+    private $roles;
 
     /**
      * @var integer
@@ -75,25 +74,21 @@ class Users implements UserInterface
     /**
      * @var boolean
      *
-     * @ORM\Column(name="status", type="boolean", nullable=false)
+     * @ORM\Column(name="is_active", type="boolean", nullable=false)
      */
-    private $status;
+    private $isActive = '1';
 
     /**
-     * Set id
+     * @var string
      *
-     * @param string $id
-     *
-     * @return Users
+     * @ORM\Column(name="confirmationToken", type="string", length=255, nullable=false)
      */
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
-    }
+    private $confirmationtoken;
+
+
 
     /**
-     * Get Id
+     * Get id
      *
      * @return integer
      */
@@ -124,6 +119,30 @@ class Users implements UserInterface
     public function getUsername()
     {
         return $this->username;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     *
+     * @return Users
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     /**
@@ -175,51 +194,28 @@ class Users implements UserInterface
     }
 
     /**
-     * Set mail
+     * Set roles
      *
-     * @param string $mail
+     * @param string $roles
      *
      * @return Users
      */
-    public function setMail($mail)
+    public function setRoles(Array $roles)
     {
-        $this->mail = $mail;
+        $this->roles = implode(',', $roles);
 
         return $this;
     }
 
     /**
-     * Get mail
+     * Get roles
      *
      * @return string
      */
-    public function getMail()
+    public function getRoles()
     {
-        return $this->mail;
-    }
-
-    /**
-     * Set role
-     *
-     * @param string $role
-     *
-     * @return Users
-     */
-    public function setRole($role)
-    {
-        $this->role = $role;
-
-        return $this;
-    }
-
-    /**
-     * Get role
-     *
-     * @return string
-     */
-    public function getRole()
-    {
-        return $this->role;
+        //return array('ROLE_USER');
+        return  explode(',', $this->roles);
     }
 
     /**
@@ -276,42 +272,151 @@ class Users implements UserInterface
     }
 
     /**
-     * Set status
+     * Set isActive
      *
-     * @param boolean $status
+     * @param boolean $isActive
      *
      * @return Users
      */
-    public function setStatus($status)
+    public function setIsActive($isActive)
     {
-        $this->status = $status;
+        $this->isActive = (bool) $isActive;
 
         return $this;
     }
 
     /**
-     * Get status
+     * Get isActive
      *
      * @return boolean
      */
-    public function getStatus()
+    public function getIsActive()
     {
-        return $this->status;
+        return $this->isActive;
     }
 
-
     /**
-     * @inheritDoc
+     * Set confirmationtoken
+     *
+     * @param string $confirmationtoken
+     *
+     * @return Users
      */
-    public function getRoles()
+    public function setConfirmationtoken($confirmationtoken)
     {
-        return array($this->getRole());
+        $this->confirmationtoken = $confirmationtoken;
+
+        return $this;
     }
 
     /**
-     * @inheritDoc
+     * Get confirmationtoken
+     *
+     * @return string
+     */
+    public function getConfirmationtoken()
+    {
+        return $this->confirmationtoken;
+    }
+
+    /**
+     * Removes sensitive data from the user.
+     *
+     * This is a no-op, since we never store the plain text credentials in this object.
+     * It's required by UserInterface.
+     *
+     * @return void
      */
     public function eraseCredentials()
     {
+    }
+
+    /**
+     * The Symfony Security component stores a serialized User object in the session.
+     * We only need it to store the user ID, because the user provider's refreshUser() method is called on each request
+     * and reloads the user by its ID.
+     *
+     * @see \Serializable::serialize()
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->isActive,
+        ));
+    }
+    /**
+     * @see \Serializable::unserialize()
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->isActive,
+            ) = unserialize($serialized);
+    }
+
+    /**
+     * Checks whether the user's account has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw an AccountExpiredException and prevent login.
+     *
+     * @return bool    true if the user's account is non expired, false otherwise
+     *
+     * @see AccountExpiredException
+     */
+    public function isAccountNonExpired()
+    {
+        return true;
+    }
+    /**
+     * Checks whether the user is locked.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a LockedException and prevent login.
+     *
+     * @return bool    true if the user is not locked, false otherwise
+     *
+     * @see LockedException
+     */
+    public function isAccountNonLocked()
+    {
+        return true;
+    }
+    /**
+     * Checks whether the user's credentials (password) has expired.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a CredentialsExpiredException and prevent login.
+     *
+     * @return bool    true if the user's credentials are non expired, false otherwise
+     *
+     * @see CredentialsExpiredException
+     */
+    public function isCredentialsNonExpired()
+    {
+        return true;
+    }
+
+    /**
+     * Checks whether the user is enabled.
+     *
+     * Internally, if this method returns false, the authentication system
+     * will throw a DisabledException and prevent login.
+     *
+     * Users are enabled by default.
+     *
+     * @return bool    true if the user is enabled, false otherwise
+     *
+     * @see DisabledException
+     */
+    public function isEnabled()
+    {
+        return $this->isActive;
     }
 }

@@ -6,20 +6,19 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class User extends Admin
+class Content extends Admin
 {
 
-    protected static $entity = '\App\Entity\Users';
-    protected static $form   = '\App\Form\UserType';
+    protected static $entity = '\App\Entity\Content';
+    protected static $form   = '\App\Form\ContentType';
 
-    protected $template     = 'users';
-    protected $cancel_route = 'admin_users';
+    protected $template     = 'content';
+    protected $cancel_route = 'admin_content';
 
-    protected static $page_title = 'Users';
+    protected static $page_title = 'Content';
     protected static $page_desc  = '';
-    protected static $icon_class = 'fa fa-users';
 
-    protected $showFields = array('id', 'username', 'email', 'roles', 'createdAt', 'isActive');
+//    protected $showFields = array('id', 'username', 'email', 'roles', 'createdAt', 'isActive');
 
     public function connect(Application $app)
     {
@@ -29,15 +28,15 @@ class User extends Admin
             // check for something here
         });
 
-        $controllers->get("/",                    [$this, 'index']            )->bind('admin_users');
+        $controllers->get("/",                    [$this, 'index']            )->bind('admin_content');
 
-        $controllers->get("/create",              [$this, 'create']           )->bind('admin_users_create');
-        $controllers->post("/",                   [$this, 'create']           )->bind('admin_users_store');
+        $controllers->get("/create",              [$this, 'create']           )->bind('admin_content_create');
+        $controllers->post("/",                   [$this, 'create']           )->bind('admin_content_store');
 
-        $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_edit');
-        $controllers->put("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_update');
-        $controllers->delete("/{id}",             [$this, 'destroy']          )->assert('id', '\d+')->bind('admin_users_delete');
-        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_users_deleteSelected');
+        $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_content_edit');
+        $controllers->put("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_content_update');
+        $controllers->delete("/{id}",             [$this, 'destroy']          )->assert('id', '\d+')->bind('admin_content_delete');
+        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_content_deleteSelected');
 
         //->convert('id', function ($id) { return (int) $id; });
 
@@ -50,7 +49,7 @@ class User extends Admin
     }
 
     public function index(Request $request, Application $app){
-        // show the list of users
+        // show the list of items
 
         $this->template = 'table';
 
@@ -58,50 +57,25 @@ class User extends Admin
 
         $this->data['items']  = $this->em()->getRepository(self::$entity)->findAll();
         $this->data['fields'] = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
-       // $this->data['fields'] = $this->em()->getClassMetadata(self::$entity)->getFieldNames();
 
-        //dump($this->em()->getClassMetadata(self::$entity)->getFieldNames());
-        //dump($this->data['fields']); exit;
-
-
-        // http://symfony.com/doc/current/book/doctrine.html
-        //  http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html#conditional-operators
-        // http://www.mendoweb.be/blog/using-repositories-doctrine-2/
-        // http://odiszapc.ru/doctrine/working-with-objects/
-
-        //   $qb = $this->em()->getRepository('\App\Entity\Drivers')->createQueryBuilder('n');
-        //   $items = $qb->where($qb->expr()->in('n.status', array(1,2,3)))->getQuery()->getResult();
-
-
-        //   $q = $this->em()->createQuery("select n from \App\Entity\Drivers n where n.name = 'Ali'");
-        //   $items = $q->getResult();
-
-        // $items = $this->em()->getRepository('\App\Entity\Drivers')->findBy(array('name' => 'Ali'));
-
-        // $query = $this->em()->createQuery("select d from \App\Entity\Drivers d where d.status=1");
-        // $query->setMaxResults(30);
-        // $items = $query->getResult();
-
-        //http://stackoverflow.com/questions/15619054/is-there-posible-to-use-createquerybuilder-for-insert-update-if-not-what-funct
-
-
-        //echo '<pre>'.print_r($this->data['fields'], true).'</pre>';
-        //echo '<pre>'.print_r($this->data['items'], true).'</pre>';
-
-
-        //return $this->twig()->render('admin/users.twig', $this->data);
         return '';
     }
 
     // create a new user, using POST method
     public function create(Request $request, Application $app)
     {
-        $user = new static::$entity();
+        $this->data['langs'] = $this->em()->getRepository('\App\Entity\Languages')->findAllActive();
 
-        $form = $app['form.factory']->create(new static::$form(), $user, array(
+        $item = new static::$entity();
+
+        $form = $app['form.factory']->create(new static::$form($app), $item, array(
             'method' => 'POST',
-            'action' => $app->path('admin_users_store'),
+            'action' => $app->path('admin_content_store'),
             'attr'   => array('role' => 'form')
+        ));
+
+        $form->add('languages', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, array(
+            'entry_type' => ContentLanguageType::class
         ));
 
         if ($request->isMethod('POST')) {
@@ -109,9 +83,9 @@ class User extends Admin
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $app['repository.user']->save($user);
+                $app['repository.user']->save($item);
 
-                $app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been created.');
+                $app['session']->getFlashBag()->add('success', 'The user '.$item->getUsername().' has been created.');
                 return $app->redirect($app->path($this->cancel_route));
             }
         }
@@ -119,7 +93,7 @@ class User extends Admin
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new user';
 
-        $this->template = 'form';
+        $this->template = $this->template.'_form';
         return '';
     }
 
@@ -132,9 +106,9 @@ class User extends Admin
             return $this->app->redirect($this->app->path($this->cancel_route));
         }
 
-        $form = $this->app['form.factory']->create(new static::$form(), $user, array(
+        $form = $this->app['form.factory']->create(new static::$form($app), $user, array(
             'method' => 'PUT',
-            'action' => $this->app->path('admin_users_update', array('id' => $id)),
+            'action' => $this->app->path('admin_content_update', array('id' => $id)),
             'attr'   => array('role' => 'form')
         ));
 
@@ -153,7 +127,7 @@ class User extends Admin
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Edit User';
 
-        $this->template = 'form';
+        $this->template = $this->template.'_form';
         return '';
     }
 
@@ -185,7 +159,7 @@ class User extends Admin
             ->setParameter('ids', $ids);
         $qb->getQuery()->execute();
 
-        $this->app['session']->getFlashBag()->add('success', 'Users were deleted!');
+        $this->app['session']->getFlashBag()->add('success', 'Rows were deleted!');
         return '';
     }
 

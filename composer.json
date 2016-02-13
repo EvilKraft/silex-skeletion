@@ -14,7 +14,8 @@
         "monolog/monolog": "^1.17",
         "jeromemacias/silex-debug": "~1.0@dev",
         "silex/web-profiler": "^1.0",
-        "sorien/silex-dbal-profiler": "~1.1"
+        "sorien/silex-dbal-profiler": "~1.1",
+        "swiftmailer/swiftmailer": "^5.4"
     },
     "autoload": {
         "psr-0": {

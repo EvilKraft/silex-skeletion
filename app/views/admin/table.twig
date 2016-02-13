@@ -34,7 +34,7 @@
                                 {% for item in items %}
                                     <tr id="row_{{ attribute(item, fields|first) }}">
                                         {% for field in fields %}
-                                            <td> {{ attribute(item, field) }} </td>
+                                            <td> {{ attribute(item, field)|join(',') }} </td>
                                         {% endfor %}
 
                                         <td>

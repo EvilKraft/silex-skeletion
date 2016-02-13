@@ -28,16 +28,18 @@ class UserType extends AbstractType
                 'second_options'  => array('label' => 'Repeat Password'),
                 'required'        => false,
             ))
-            ->add('mail', 'email', array(
+            ->add('email', 'email', array(
                 'constraints' => array(new Assert\NotBlank(), new Assert\Email()),
                 'attr' => array('class' => 'form-control', 'placeholder' => 'user@email.com'),
             ))
-            ->add('role', 'choice', array(
+            /*
+            ->add('roles', 'choice', array(
                 'constraints' => array(new Assert\NotBlank()),
                 'choices' => array('ROLE_USER' => 'User', 'ROLE_ADMIN' => 'Admin'),
                 'attr' => array('class' => 'form-control'),
                 'placeholder' => 'Choose a role',
             ))
+            */
             ->add('image', 'file',  array(
                 'data_class' => null,
                 'attr' => array('accept' => 'image/png,image/jpeg,image/gif'),
@@ -53,7 +55,7 @@ class UserType extends AbstractType
                 ))),
                 'required'   => false,
             ))
-            ->add('status', 'choice', array(
+            ->add('is_active', 'choice', array(
                 'choices' => array('1' => 'Active', '0' => 'Inactive'),
                 'expanded' => true,
             ));

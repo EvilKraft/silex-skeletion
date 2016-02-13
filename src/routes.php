@@ -21,6 +21,7 @@ $app->match('/login_redirect', 'App\Auth::loginRedirectAction')->bind('login-red
 
 $app->mount('/'.$app['admin_dir'],            new App\Controller\Admin\Dashboard($app));
 $app->mount('/'.$app['admin_dir'].'/users',   new App\Controller\Admin\User($app));
+$app->mount('/'.$app['admin_dir'].'/content', new App\Controller\Admin\Content($app));
 
 /*
 $app->get('/'.$app['admin_dir'].'/users',                 'App\Controller\AdminUserController::indexAction' )->bind('admin_users');

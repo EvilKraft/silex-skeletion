@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Users
  *
- * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username", columns={"username"})})
+ * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username_idx", columns={"username"})})
  * @ORM\Entity
  */
 class Users
@@ -15,11 +15,11 @@ class Users
     /**
      * @var integer
      *
-     * @ORM\Column(name="user_id", type="integer", nullable=false)
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $userId;
+    private $id;
 
     /**
      * @var string
@@ -27,6 +27,13 @@ class Users
      * @ORM\Column(name="username", type="string", length=255, nullable=false)
      */
     private $username;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255, nullable=false)
+     */
+    private $email;
 
     /**
      * @var string
@@ -45,16 +52,9 @@ class Users
     /**
      * @var string
      *
-     * @ORM\Column(name="mail", type="string", length=255, nullable=false)
+     * @ORM\Column(name="roles", type="string", length=255, nullable=false)
      */
-    private $mail;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="role", type="string", length=255, nullable=false)
-     */
-    private $role;
+    private $roles;
 
     /**
      * @var integer
@@ -69,6 +69,20 @@ class Users
      * @ORM\Column(name="image", type="string", length=255, nullable=true)
      */
     private $image;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_active", type="boolean", nullable=false)
+     */
+    private $isActive = '1';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="confirmationToken", type="string", length=255, nullable=false)
+     */
+    private $confirmationtoken;
 
 
 }
