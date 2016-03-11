@@ -27,7 +27,9 @@ abstract class Admin extends \App\Controller
         'FastClick'  => false,
     );
 
+    protected $sortTable  = true;
     protected $showFields = array();
+    protected $actions    = array('edit', 'delete');
 
     public function __construct(Application $app)
     {

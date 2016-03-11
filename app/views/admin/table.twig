@@ -5,6 +5,8 @@
 {% set route_delete          = app.request.get('_route') ~ '_delete'         %}
 {% set route_delete_selected = app.request.get('_route') ~ '_deleteSelected' %}
 
+{% set route_create_child    = app.request.get('_route') ~ '_createChild'    %}
+
 {% block content %}
     <div class="row">
         <div class="col-xs-12" id="table_container">
@@ -24,33 +26,60 @@
                             <thead>
                                 <tr>
                                     {% for field in fields %}
-                                        <th>{{field}}</th>
+                                        {% if field == 'getLaveledTitle' %}
+                                            <th>Title</th>
+                                        {% else %}
+                                            <th>{{field}}</th>
+                                        {% endif %}
                                     {% endfor %}
 
-                                    <th>Actions</th>
+                                    {% if actions is defined and not actions is empty %}
+                                        <th>Actions</th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in items %}
                                     <tr id="row_{{ attribute(item, fields|first) }}">
                                         {% for field in fields %}
-                                            <td> {{ attribute(item, field)|join(',') }} </td>
+                                            {% if field == 'getLaveledTitle' %}
+                                                <td style="padding-left: {{ item.lvl*20+8 }}px"> {{ attribute(item, field)|join(',') }} </td>
+                                            {% else %}
+                                                <td> {{ attribute(item, field)|join(',') }} </td>
+                                            {% endif %}
                                         {% endfor %}
 
-                                        <td>
-                                            <a href="{{ path(route_edit, {'id': item.id}) }}"><i class="fa fa-edit"></i></a>
-                                            <a href="javascript:void(0);" onclick="deleteItem('{{ path(route_delete, {'id': item.id }) }}');"><i class="fa fa-remove"></i></a>
-                                        </td>
+                                        {% if actions is defined and not actions is empty %}
+                                            <td>
+                                                {% if 'edit' in actions %}
+                                                    <a href="{{ path(route_edit, {'id': item.id}) }}"><i class="fa fa-edit"></i></a>
+                                                {% endif %}
+                                                {% if 'delete' in actions %}
+                                                    <a href="javascript:void(0);" onclick="deleteItem('{{ path(route_delete, {'id': item.id }) }}');"><i class="fa fa-remove"></i></a>
+                                                {% endif %}
+                                                {% if 'create_child' in actions %}
+                                                    <a href="{{ path(route_create_child, {'id': item.id}) }}"><i class="fa fa-plus-square"></i></a>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
                                     </tr>
+
+
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     {% for field in fields %}
-                                        <th>{{field}}</th>
+                                        {% if field == 'getLaveledTitle' %}
+                                            <th>Title</th>
+                                        {% else %}
+                                            <th>{{field}}</th>
+                                        {% endif %}
                                     {% endfor %}
 
-                                    <th>Actions</th>
+                                    {% if actions is defined and not actions is empty %}
+                                        <th>Actions</th>
+                                    {% endif %}
                                 </tr>
                             </tfoot>
                         </table>

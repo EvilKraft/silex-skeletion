@@ -60,7 +60,7 @@
                 'select_all',
                 //'copy', 'excel', 'pdf'
             ],
-
+            {% if sort_table is defined %}ordering: {{ sort_table }},{% endif %}
             columnDefs: [
                 { orderable: false, targets: -1 }
             ]

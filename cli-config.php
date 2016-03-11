@@ -1,31 +1,41 @@
 <?php
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
 
-require_once __DIR__ ."/vendor/autoload.php";
+use Doctrine\Common\Annotations\AnnotationRegistry,
+    Symfony\Component\Console\Helper\HelperSet,
+    Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper,
+    Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper,
+    Symfony\Component\Console\Application as CliAplication,
+    Doctrine\ORM\Tools\Console\Command;
+
+
+$loader = require __DIR__ ."/vendor/autoload.php";
+
+AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
+
+
+$app = new Silex\Application();
 
 require __DIR__ . '/app/config/dev.php';
 
-$isDevMode = true;
+$app->register(new Silex\Provider\DoctrineServiceProvider());
+$app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());
+$app['db.event_manager']->addEventSubscriber(new Gedmo\Tree\TreeListener());
 
-/**
- * Creates a configuration with an annotation metadata driver.
- *
- * @param array   $paths
- * @param boolean $isDevMode
- * @param string  $proxyDir
- * @param Cache   $cache
- * @param bool    $useSimpleAnnotationReader
- *
- * @return Configuration
- */
-$config = Setup::createAnnotationMetadataConfiguration(array($app['orm.em.options']['mappings'][0]['path']), $isDevMode, null, null, false);
-
-$entityManager = EntityManager::create($app['db.options'] , $config);
-
-$helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
-    'db' => new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($entityManager->getConnection()),
-    'em' => new \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($entityManager)
+$helperSet = new HelperSet(array(
+    'db' => new ConnectionHelper($app['orm.em']->getConnection()),
+    'em' => new EntityManagerHelper($app['orm.em'])
 ));
 
-return $helperSet;
+$cli = new CliAplication('Doctrine Command Line Interface', Doctrine\DBAL\Version::VERSION);
+$cli->setCatchExceptions(true);
+$cli->setHelperSet($helperSet);
+$cli->addCommands([
+    new Command\GenerateRepositoriesCommand,
+    new Command\GenerateEntitiesCommand,
+    new Command\ConvertMappingCommand,
+    new Command\ValidateSchemaCommand,
+    new Command\SchemaTool\CreateCommand,
+    new Command\SchemaTool\UpdateCommand,
+    new Command\GenerateProxiesCommand
+]);
+$cli->run();

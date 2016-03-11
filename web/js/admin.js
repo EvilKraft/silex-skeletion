@@ -20,8 +20,14 @@ function deleteItem(url){
 			type: "DELETE",
 			dataType: "json",
 			success: function (result) {
-				$('#table_container').prepend( result.data );
-				removeAlerts();
+			//	$('#table_container').prepend( result.data );
+			//	removeAlerts();
+
+				if(result.status == 'OK'){
+					location.reload();
+				}else{
+					alert(result.error);
+				}
 			}
 		});
 	}

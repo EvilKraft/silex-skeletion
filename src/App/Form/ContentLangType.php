@@ -5,8 +5,9 @@ namespace App\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ContentLanguageType extends AbstractType
+class ContentLangType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -14,10 +15,7 @@ class ContentLanguageType extends AbstractType
             ->add('id', 'hidden', array(
                 'required'  => false,
             ))
-            ->add('content_id', 'hidden', array(
-                'required'  => false,
-            ))
-            ->add('language_id', 'hidden', array(
+            ->add('languageId', 'hidden', array(
                 'required'  => false,
             ))
             ->add('title', 'text', array(
@@ -41,6 +39,13 @@ class ContentLanguageType extends AbstractType
 
     public function getName()
     {
-        return 'contentLanguage';
+        return 'contentLang';
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => 'App\Entity\ContentLangs',
+        ));
     }
 }

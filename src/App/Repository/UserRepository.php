@@ -52,7 +52,7 @@ class UserRepository extends EntityRepository implements RepositoryInterface, Us
         if($item->getImage() instanceof UploadedFile){
             $item->setImage($this->processImage($item->getImage()));
         }else{
-            $item->setImage('http://www.gravatar.com/avatar/'.md5(trim($item->getMail())));
+            $item->setImage('http://www.gravatar.com/avatar/'.md5(trim($item->getEmail())));
         }
 
         $this->_em->persist($item);

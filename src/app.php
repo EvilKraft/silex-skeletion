@@ -10,6 +10,14 @@ use Symfony\Component\Debug\ExceptionHandler;
 // Register service providers.
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());
+
+//Setting Doctrine2 extensions
+//http://stackoverflow.com/questions/10676242/using-doctrine2-sluggable-extension-with-silex
+//http://silex-doctrine-extensions.readthedocs.org/en/latest/doctrine.html
+//$app['db.event_manager']->addEventSubscriber(new \Gedmo\Timestampable\TimestampableListener());
+$app['db.event_manager']->addEventSubscriber(new Gedmo\Tree\TreeListener());
+
+
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
 
 $app->register(new Silex\Provider\FormServiceProvider());
@@ -18,6 +26,9 @@ $app->register(new Silex\Provider\ValidatorServiceProvider());
 
 $app->register(new Silex\Provider\TranslationServiceProvider());
 //$app->register(new Silex\Provider\SwiftmailerServiceProvider());
+
+
+$app->register(new Saxulum\DoctrineOrmManagerRegistry\Silex\Provider\DoctrineOrmManagerRegistryProvider());
 
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
@@ -102,8 +113,11 @@ if($app['debug']){
     //dump($my_var);
 }
 
+$app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
+    $types[] = new App\Form\LangtabsType();
 
-
+    return $types;
+}));
 
 
 /*

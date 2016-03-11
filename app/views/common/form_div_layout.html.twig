@@ -136,6 +136,9 @@
 
 {% block form_row %}
 {% spaceless %}
+    {% if 'langtabs' in form.vars.block_prefixes %}
+        {{ block('langtabs_widget') }}
+    {% else %}
     <div class="form-group{% if not form.vars.valid %} has-error{% endif %}">
         {{ form_label(form, label|default(null)) }}
         <div class="controls">
@@ -143,6 +146,7 @@
             {{ form_errors(form) }}
         </div>
     </div>
+    {% endif %}
 {% endspaceless %}
 {% endblock form_row %}
 
@@ -155,3 +159,31 @@
     {% endif %}
 {% endspaceless %}
 {% endblock form_errors %}
+
+{% block langtabs_widget %}
+    <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+            {% set active_lang = "" %}
+            {% for lang in form.parent.vars.langs %}
+                {% if loop.first %}
+                    {% set active_lang = lang.id %}
+                {% endif %}
+                <li {% if loop.first %}class="active"{% endif %}><a href="#tab_{{ lang.id }}" data-toggle="tab">{{ lang.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for rows in form %}
+                {% set tab_attr = attr|merge({'class': 'tab-pane' ~ (active_lang == rows.languageId.vars.value ? ' active' : '') ~ ' ' ~ attr.class|default(''), 'id': 'tab_' ~ rows.languageId.vars.value }) %}
+                <div{% for attrname, attrvalue in tab_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+                    {{ form_widget(rows) }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
+
+

@@ -15,14 +15,19 @@
         "jeromemacias/silex-debug": "~1.0@dev",
         "silex/web-profiler": "^1.0",
         "sorien/silex-dbal-profiler": "~1.1",
-        "swiftmailer/swiftmailer": "^5.4"
+        "swiftmailer/swiftmailer": "^5.4",
+        "gedmo/doctrine-extensions": "dev-master",
+
+        "symfony/doctrine-bridge": "~2.2",
+        "saxulum/saxulum-doctrine-orm-manager-registry-provider": "~2.2"
     },
     "autoload": {
         "psr-0": {
             "App": "src/",
             "Entity": "src/App",
             "Repository": "src/App",
-            "Form": "src/App"
+            "Form": "src/App",
+            "Gedmo": "vendor/gedmo/doctrine-extensions/lib/'"
         }
     }
 }

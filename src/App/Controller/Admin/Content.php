@@ -18,7 +18,9 @@ class Content extends Admin
     protected static $page_title = 'Content';
     protected static $page_desc  = '';
 
-//    protected $showFields = array('id', 'username', 'email', 'roles', 'createdAt', 'isActive');
+    protected $sortTable  = false;
+    protected $showFields = array('id', 'getLaveledTitle', 'alias');
+    protected $actions    = array('edit', 'delete', 'create_child');
 
     public function connect(Application $app)
     {
@@ -31,6 +33,7 @@ class Content extends Admin
         $controllers->get("/",                    [$this, 'index']            )->bind('admin_content');
 
         $controllers->get("/create",              [$this, 'create']           )->bind('admin_content_create');
+        $controllers->get("/{id}/create",         [$this, 'create']           )->bind('admin_content_createChild')->assert('id', '\d+');
         $controllers->post("/",                   [$this, 'create']           )->bind('admin_content_store');
 
         $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_content_edit');
@@ -55,94 +58,131 @@ class Content extends Admin
 
         $this->AdminLTEPlugins['dataTables'] = true;
 
-        $this->data['items']  = $this->em()->getRepository(self::$entity)->findAll();
-        $this->data['fields'] = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
+        $query = $this->em()
+            ->createQueryBuilder()
+            ->select('node')
+            ->from(self::$entity, 'node')
+            ->orderBy('node.root, node.lft', 'ASC')
+            ->getQuery()
+        ;
+        $tree = $query->getResult();
+
+       // $this->data['items']   = $this->em()->getRepository(self::$entity)->findAll();
+        $this->data['items']      = $tree;
+        $this->data['fields']     = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
+        $this->data['actions']    = $this->actions;
+        $this->data['sort_table'] = $this->sortTable;
 
         return '';
     }
 
-    // create a new user, using POST method
-    public function create(Request $request, Application $app)
+    // create a new item, using POST method
+    public function create(Request $request, Application $app, $id=null)
     {
-        $this->data['langs'] = $this->em()->getRepository('\App\Entity\Languages')->findAllActive();
-
         $item = new static::$entity();
+
+        $langs = $this->em()->getRepository('\App\Entity\Languages')->findAllActive();
+        foreach($langs as $lang){
+            if(!$item->hasLang($lang->getId())){
+                $newLang = new \App\Entity\ContentLangs();
+                $newLang->setLanguageId($lang->getId());
+                $item->addLang($newLang);
+            }
+        }
 
         $form = $app['form.factory']->create(new static::$form($app), $item, array(
             'method' => 'POST',
             'action' => $app->path('admin_content_store'),
-            'attr'   => array('role' => 'form')
+            'attr'   => array('role' => 'form'),
+            'langs'  => $langs,
         ));
 
-        $form->add('languages', \Symfony\Component\Form\Extension\Core\Type\CollectionType::class, array(
-            'entry_type' => ContentLanguageType::class
-        ));
+        if(!is_null($id)){
+            $parent = $this->em()->getRepository(self::$entity)->find($id);
+            if(is_null($parent)){
+                throw new Exception('Item '.$id.' not found!');
+            }
+            $form->get('parentId')->setData($parent->getId());
+        }
+
 
         if ($request->isMethod('POST')) {
 
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $app['repository.user']->save($item);
+                $item->setParent($this->em()->getRepository(self::$entity)->find($form->get('parentId')->getData()));
+                $this->em()->getRepository(self::$entity)->save($item);
 
-                $app['session']->getFlashBag()->add('success', 'The user '.$item->getUsername().' has been created.');
+                $app['session']->getFlashBag()->add('success', 'The item has been created.');
                 return $app->redirect($app->path($this->cancel_route));
             }
         }
 
         $this->data['form'] = $form->createView();
-        $this->data['title'] = 'Add new user';
+        $this->data['title'] = 'Add new item';
 
         $this->template = $this->template.'_form';
         return '';
     }
 
-    // update the user #id, using PUT method
+    // update the item #id, using PUT method
     public function update(Application $app, $id){
-        $user = $this->em()->getRepository(self::$entity)->find($id);
+        $item = $this->em()->getRepository(self::$entity)->find($id);
 
-        if(is_null($user)){
-            $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
+        if(is_null($item)){
+            $this->app['session']->getFlashBag()->add('danger', 'Item was not found!');
             return $this->app->redirect($this->app->path($this->cancel_route));
         }
 
-        $form = $this->app['form.factory']->create(new static::$form($app), $user, array(
+        $langs = $this->em()->getRepository('\App\Entity\Languages')->findAllActive();
+        foreach($langs as $lang){
+            if(!$item->hasLang($lang->getId())){
+                $newLang = new \App\Entity\ContentLangs();
+                $newLang->setLanguageId($lang->getId());
+                $item->addLang($newLang);
+            }
+        }
+
+        $form = $this->app['form.factory']->create(new static::$form($app), $item, array(
             'method' => 'PUT',
             'action' => $this->app->path('admin_content_update', array('id' => $id)),
-            'attr'   => array('role' => 'form')
+            'attr'   => array('role' => 'form'),
+            'langs'  => $langs,
         ));
+
 
         if ($this->app['request']->isMethod('PUT')) {
 
             $form->handleRequest($this->app['request']);
 
             if ($form->isValid()) {
-                $this->app['repository.user']->save($user);
+                $this->em()->getRepository(self::$entity)->save($item);
 
-                $this->app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been updated.');
+                $this->app['session']->getFlashBag()->add('success', 'The item '.$item->getId().' has been updated.');
                 return $this->app->redirect($this->app->path($this->cancel_route));
             }
         }
 
         $this->data['form'] = $form->createView();
-        $this->data['title'] = 'Edit User';
+        $this->data['title'] = 'Edit item';
 
         $this->template = $this->template.'_form';
         return '';
     }
 
-    // delete the user #id, using DELETE method
+    // delete the item #id, using DELETE method
     public function destroy(Application $app, $id){
-        $user = $this->em()->getRepository(self::$entity)->find($id);
+        $item = $this->em()->getRepository(self::$entity)->find($id);
 
-        if(is_null($user)){
-            $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
+        if(is_null($item)){
+            $this->app['session']->getFlashBag()->add('danger', 'Item was not found!');
             return $this->app->redirect($this->app->path($this->cancel_route));
         }
 
-        $this->app['repository.user']->delete($user);
+        $this->em()->getRepository(self::$entity)->delete($item);
 
-        $this->app['session']->getFlashBag()->add('success', 'User was deleted!');
+        $this->app['session']->getFlashBag()->add('success', 'Item was deleted!');
         return '';
     }
 
@@ -159,7 +199,7 @@ class Content extends Admin
             ->setParameter('ids', $ids);
         $qb->getQuery()->execute();
 
-        $this->app['session']->getFlashBag()->add('success', 'Rows were deleted!');
+        $this->app['session']->getFlashBag()->add('success', 'Items were deleted!');
         return '';
     }
 
