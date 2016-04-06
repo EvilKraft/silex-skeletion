@@ -19,7 +19,18 @@ class User extends Admin
     protected static $page_desc  = '';
     protected static $icon_class = 'fa fa-users';
 
+    protected static $roles = array(
+        'ROLE_USER_VIEW'   => 'View',
+        'ROLE_USER_CREATE' => 'Create',
+        'ROLE_USER_UPDATE' => 'Update',
+        'ROLE_USER_DELETE' => 'Delete',
+    );
+
     protected $showFields = array('id', 'username', 'email', 'roles', 'createdAt', 'isActive');
+
+
+    private $isEmailConfirmationRequired = false;
+
 
     public function connect(Application $app)
     {
@@ -56,13 +67,13 @@ class User extends Admin
 
         $this->AdminLTEPlugins['dataTables'] = true;
 
-        $this->data['items']  = $this->em()->getRepository(self::$entity)->findAll();
-        $this->data['fields'] = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
+        $this->data['items']      = $app['user.manager']->findAll();
+        $this->data['fields']     = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
+        $this->data['actions']    = $this->actions;
+        $this->data['sort_table'] = $this->sortTable;
+
+
        // $this->data['fields'] = $this->em()->getClassMetadata(self::$entity)->getFieldNames();
-
-        //dump($this->em()->getClassMetadata(self::$entity)->getFieldNames());
-        //dump($this->data['fields']); exit;
-
 
         // http://symfony.com/doc/current/book/doctrine.html
         //  http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html#conditional-operators
@@ -98,7 +109,7 @@ class User extends Admin
     {
         $user = new static::$entity();
 
-        $form = $app['form.factory']->create(new static::$form(), $user, array(
+        $form = $app['form.factory']->create(static::$form, $user, array(
             'method' => 'POST',
             'action' => $app->path('admin_users_store'),
             'attr'   => array('role' => 'form')
@@ -109,30 +120,39 @@ class User extends Admin
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $app['repository.user']->save($user);
+                if ($this->isEmailConfirmationRequired) {
+                    $user->setEnabled(false);
+                    $user->setConfirmationToken($app['user.tokenGenerator']->generateToken());
+                }
+
+
+                $app['user.manager']->save($user);
 
                 $app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been created.');
                 return $app->redirect($app->path($this->cancel_route));
             }
         }
 
+        $this->AdminLTEPlugins['dataTables'] = true;
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new user';
 
         $this->template = 'form';
+        $this->AdminLTEPlugins['dataTables'] = true;
+
         return '';
     }
 
     // update the user #id, using PUT method
     public function update(Application $app, $id){
-        $user = $this->em()->getRepository(self::$entity)->find($id);
+        $user = $app['user.manager']->find($id);
 
         if(is_null($user)){
             $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
             return $this->app->redirect($this->app->path($this->cancel_route));
         }
 
-        $form = $this->app['form.factory']->create(new static::$form(), $user, array(
+        $form = $this->app['form.factory']->create(static::$form, $user, array(
             'method' => 'PUT',
             'action' => $this->app->path('admin_users_update', array('id' => $id)),
             'attr'   => array('role' => 'form')
@@ -143,7 +163,7 @@ class User extends Admin
             $form->handleRequest($this->app['request']);
 
             if ($form->isValid()) {
-                $this->app['repository.user']->save($user);
+                $this->app['user.manager']->save($user);
 
                 $this->app['session']->getFlashBag()->add('success', 'The user '.$user->getUsername().' has been updated.');
                 return $this->app->redirect($this->app->path($this->cancel_route));
@@ -154,19 +174,21 @@ class User extends Admin
         $this->data['title'] = 'Edit User';
 
         $this->template = 'form';
+        $this->AdminLTEPlugins['dataTables'] = true;
+
         return '';
     }
 
     // delete the user #id, using DELETE method
     public function destroy(Application $app, $id){
-        $user = $this->em()->getRepository(self::$entity)->find($id);
+        $user = $app['user.manager']->find($id);
 
         if(is_null($user)){
             $this->app['session']->getFlashBag()->add('danger', 'User was not found!');
             return $this->app->redirect($this->app->path($this->cancel_route));
         }
 
-        $this->app['repository.user']->delete($user);
+        $this->app['user.manager']->delete($user);
 
         $this->app['session']->getFlashBag()->add('success', 'User was deleted!');
         return '';

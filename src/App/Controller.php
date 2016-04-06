@@ -73,6 +73,12 @@ abstract class Controller implements ControllerProviderInterface
        //     return $this->app()->json($this->data);
        // }
 
+        //https://blog.yorunohikage.fr/
+        //Pretty printing all JSON output in Silex PHP
+        //if($response instanceof JsonResponse) {
+        //    $response->setEncodingOptions(JSON_PRETTY_PRINT);
+        //}
+
         if($request->isXmlHttpRequest()){
             $response_data = array('status' => 'OK', 'data' => $this->data);
 

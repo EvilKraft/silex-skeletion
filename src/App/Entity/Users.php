@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Users
  *
  * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="username_idx", columns={"username"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class Users implements AdvancedUserInterface, \Serializable
 {
@@ -57,6 +58,13 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     private $roles;
 
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Groups", inversedBy="users")
+     *
+     */
+    private $groups;
+
     /**
      * @var integer
      *
@@ -86,6 +94,10 @@ class Users implements AdvancedUserInterface, \Serializable
     private $confirmationtoken;
 
 
+    public function __construct()
+    {
+        $this->groups = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -214,9 +226,65 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     public function getRoles()
     {
-        //return array('ROLE_USER');
-        return  explode(',', $this->roles);
+        //return  explode(',', $this->roles);
+
+        $roles = array();
+        foreach($this->getGroups() as $group){
+            $roles[$group->getName()] = $group->getName();
+        }
+
+    //    foreach($this->getGroups() as $group){
+    //        foreach($group->getRoles() as $role){
+    //            $roles[$role] = $role;
+    //        }
+    //    }
+
+        return array_values($roles);
     }
+
+    /**
+     * Test whether the user has the given role.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        return in_array(strtoupper($role), $this->getRoles(), true);
+    }
+
+
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+
+        return $this;
+    }
+
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Groups $group) {
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Groups $group){
+        if ($this->groups->contains($group)) {
+            $this->groups->removeElement($group);
+        }
+        return $this;
+    }
+
+    public function hasGroup(Groups $group){
+        return $this->groups->contains($group);
+    }
+
 
     /**
      * Set createdAt
@@ -292,7 +360,7 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     public function getIsActive()
     {
-        return $this->isActive;
+        return (bool) $this->isActive;
     }
 
     /**
@@ -417,6 +485,57 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     public function isEnabled()
     {
-        return $this->isActive;
+        return $this->getIsActive();
     }
+
+    /**
+     * Set whether the user is enabled.
+     *
+     * @param bool $isEnabled
+     */
+    public function setEnabled($isEnabled)
+    {
+        return $this->setIsActive($isEnabled);
+    }
+
+    /**
+     * Returns the name, if set, or else "Anonymous {id}".
+     *
+     * @return string
+     */
+    public function getDisplayName()
+    {
+        return $this->getUsername() ?: 'Anonymous ' . $this->getId();
+    }
+
+//
+//    /**
+//     * @param int|null $timestamp
+//     */
+//    public function setTimePasswordResetRequested($timestamp)
+//    {
+//        $this->timePasswordResetRequested = $timestamp ?: null;
+//    }
+//
+//    /**
+//     * @return int|null
+//     */
+//    public function getTimePasswordResetRequested()
+//    {
+//        return $this->timePasswordResetRequested;
+//    }
+//
+//    /**
+//     * @param int $ttl Password reset request TTL, in seconds.
+//     * @return bool
+//     */
+//    public function isPasswordResetRequestExpired($ttl)
+//    {
+//        $timeRequested = $this->getTimePasswordResetRequested();
+//        if (!$timeRequested) {
+//            return true;
+//        }
+//
+//        return $timeRequested + $ttl < time();
+//    }
 }

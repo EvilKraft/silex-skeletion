@@ -32,18 +32,15 @@ $app->register(new Saxulum\DoctrineOrmManagerRegistry\Silex\Provider\DoctrineOrm
 
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
+// Token generator.
+$app['user.tokenGenerator'] = $app->share(function($app) { return new \App\TokenGenerator($app['logger']); });
 
 // Register repositories.
-$app['repository.user'] = $app->share(function ($app) {
-    // create a dummy user to get the encoder
-    $user = new App\Entity\Users();
+$app['user.manager'] = $app->share(function ($app) {return new App\Repository\UserRepository($app);});
 
-    return new App\Repository\UserRepository(
-        $app['orm.em'],
-        $app['orm.em']->getClassMetadata('App\Entity\Users'),
-        $app['security.encoder_factory']->getEncoder($user)
-    );
-});
+$hierarhy = $app['orm.em']->getRepository('\App\Entity\Groups')->getRoleHierarchy();
+
+//dump($hierarhy);
 
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
@@ -62,19 +59,21 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
             'anonymous' => true,
             'logout'    => array('logout_path' => '/logout'),
             'users'     => $app->share(function() use ($app) {
-                //return new App\UserProvider($app);
-              //  return new App\Repository\UserRepository($app['db'], $app['security.encoder.digest']);
-                return $app['repository.user'];
+                return $app['user.manager'];
             }),
         ),
     ),
-    'security.role_hierarchy' => array(
-        'ROLE_ADMIN' => array('ROLE_USER'),
-    ),
+    'security.role_hierarchy' => $hierarhy,
+
+//    'security.role_hierarchy' => array(
+//        'ROLE_ADMIN' => array('ROLE_USER'),
+//    ),
+
     'security.access_rules' => array(
         array('^/login$',                  'IS_AUTHENTICATED_ANONYMOUSLY'),
         array('^/register',                'IS_AUTHENTICATED_ANONYMOUSLY'),
-        array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
+        //array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
+        array('^/'.$app['admin_dir'].'.*', 'IS_AUTHENTICATED_ANONYMOUSLY'),
 
     //    array('^.*$', 'IS_AUTHENTICATED_FULLY'),
     ),
@@ -109,8 +108,6 @@ if($app['debug']){
     ));
 
     $app->register(new Sorien\Provider\DoctrineProfilerServiceProvider());
-
-    //dump($my_var);
 }
 
 $app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
@@ -120,14 +117,12 @@ $app['form.types'] = $app->share($app->extend('form.types', function ($types) us
 }));
 
 
-/*
 $app->before(function (Request $request) {
     if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
         $data = json_decode($request->getContent(), true);
-        $request->request = new ParameterBag(is_array($data) ? $data : array());
+        $request->request->replace(is_array($data) ? $data : array());
     }
 });
-*/
 
 // Protect admin urls.
 $app->before(function (Request $request) use ($app) {
@@ -148,16 +143,12 @@ $app->before(function (Request $request) use ($app) {
         if (null !== $token) {
             $user = $token->getUser();
 
-            $my_dump = $user; var_dump($my_dump); echo '<pre>'.print_r($my_dump, true).'</pre>';
-
             // Get list of roles for current user
             $roles = $token->getRoles();
             // Tranform this list in array
             $rolesTab = array_map(function($role){
                 return $role->getRole();
             }, $roles);
-
-            $my_dump = $rolesTab; var_dump($my_dump); echo '<pre>'.print_r($my_dump, true).'</pre>';
         }
 
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_ANONYMOUSLY')) {
@@ -182,7 +173,6 @@ $app->before(function (Request $request) use ($app) {
 
         $session = $request->getSession();
         $secured = unserialize($session->get('_security_secured'));
-        $my_dump = $secured; var_dump($my_dump); echo '<pre>'.print_r($my_dump, true).'</pre>';
     */
 });
 

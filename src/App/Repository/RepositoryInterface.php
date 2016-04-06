@@ -2,8 +2,6 @@
 
 namespace App\Repository;
 
-use Symfony\Component\Security\Core\User\UserInterface;
-
 /**
  * Repository interface.
  *
@@ -20,21 +18,27 @@ interface RepositoryInterface
      *
      * @param object $entity
      */
-    public function save(UserInterface $entity);
+    public function save($entity);
 
     /**
      * Deletes the entity.
      *
-     * @param integer $id
+     * @param integer $entity
      */
-    public function delete(UserInterface $entity);
+    public function delete($entity);
 
     /**
      * Returns the total number of entities.
      *
      * @return int The total number of entities.
      */
-  //  public function getCount();
+    public function getCount();
 
-
+    /**
+     * Whether this repository supports the given entity class
+     *
+     * @param string $class
+     * @return Boolean
+     */
+    public function supportsClass($class);
 }

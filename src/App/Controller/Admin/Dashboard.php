@@ -18,6 +18,10 @@ class Dashboard extends Admin
     protected static $page_desc  = '';
     protected static $icon_class = 'fa fa-dashboard';
 
+    protected static $roles = array(
+        'ROLE_ADMIN' => 'Can login Admin Pannel',
+    );
+
     protected $data = array();
 
     public function connect(Application $app)
@@ -39,6 +43,10 @@ class Dashboard extends Admin
 
 
     public function indexAction(Request $request, Application $app){
+        $this->data['orders']   = 150;
+        $this->data['users']    = $app['user.manager']->getCount();
+        $this->data['rate']     = 53;
+        $this->data['visitors'] = 65;
 
         return '';
     }

@@ -1,11 +1,72 @@
 {% extends 'admin/layout.twig' %}
 
-{% set route_create          = app.request.get('_route') ~ '_create'         %}
-{% set route_edit            = app.request.get('_route') ~ '_edit'           %}
-{% set route_delete          = app.request.get('_route') ~ '_delete'         %}
-{% set route_delete_selected = app.request.get('_route') ~ '_deleteSelected' %}
+    {% set route_create          = app.request.get('_route') ~ '_create'         %}
+    {% set route_edit            = app.request.get('_route') ~ '_edit'           %}
+    {% set route_delete          = app.request.get('_route') ~ '_delete'         %}
+    {% set route_delete_selected = app.request.get('_route') ~ '_deleteSelected' %}
 
-{% set route_create_child    = app.request.get('_route') ~ '_createChild'    %}
+    {% set route_create_child    = app.request.get('_route') ~ '_createChild'    %}
+    {% set route_move            = app.request.get('_route') ~ '_move'           %}
+
+
+
+{% block tableRow %}
+    {% spaceless %}
+        <tr id="row_{{ attribute(item, fields|first) }}">
+            {% for field in fields %}
+                <td>
+                    {% if field == 'getLaveledTitle' %}
+                        {{ (attribute(item, field)|join(','))|raw }}
+                    {% elseif field == 'isActive' %}
+                        <a href="javascript:void(0);" onclick="moveItem('{{ path(route_edit, {'id': item.id }) }}');"><i class="fa fa-check-square-o {{ item.isActive == 1 ? 'text-green' : 'text-muted' }}"></i></a>
+                    {% else %}
+                        {{ attribute(item, field)|join(',') }}
+                    {% endif %}
+                </td>
+            {% endfor %}
+
+            {% if actions is defined and not actions is empty %}
+                <td>
+                    {% if 'edit' in actions %}
+                        <a href="{{ path(route_edit, {'id': item.id}) }}"><i class="fa fa-edit"></i></a>
+                    {% endif %}
+                    {% if 'delete' in actions %}
+                        <a href="javascript:void(0);" onclick="deleteItem('{{ path(route_delete, {'id': item.id }) }}');"><i class="fa fa-remove"></i></a>
+                    {% endif %}
+                    {% if 'create_child' in actions %}
+                        <a href="{{ path(route_create_child, {'id': item.id}) }}"><i class="fa fa-plus-square"></i></a>
+                    {% endif %}
+                    {% if 'move' in actions %}
+                        {% if not loop.first %}
+                            <a href="javascript:void(0);" onclick="moveItem('{{ path(route_move, {'id': item.id }) }}', 'up');"><i class="fa fa-arrow-up"></i></a>
+                        {% endif %}
+                        {% if not loop.last %}
+                            <a href="javascript:void(0);" onclick="moveItem('{{ path(route_move, {'id': item.id }) }}', 'down');"><i class="fa fa-arrow-down"></i></a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endspaceless %}
+{% endblock %}
+
+{% macro table_rows(items, fields, actions) %}
+    {% set route_create          = app.request.get('_route') ~ '_create'         %}
+    {% set route_edit            = app.request.get('_route') ~ '_edit'           %}
+    {% set route_delete          = app.request.get('_route') ~ '_delete'         %}
+    {% set route_delete_selected = app.request.get('_route') ~ '_deleteSelected' %}
+
+    {% set route_create_child    = app.request.get('_route') ~ '_createChild'    %}
+    {% set route_move            = app.request.get('_route') ~ '_move'           %}
+
+    {% for item in items %}
+        {{ block('tableRow') }}
+
+        {% if item.__children is defined %}
+            {{ _self.table_rows(item.__children, fields, actions) }}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
 
 {% block content %}
     <div class="row">
@@ -39,33 +100,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in items %}
-                                    <tr id="row_{{ attribute(item, fields|first) }}">
-                                        {% for field in fields %}
-                                            {% if field == 'getLaveledTitle' %}
-                                                <td style="padding-left: {{ item.lvl*20+8 }}px"> {{ attribute(item, field)|join(',') }} </td>
-                                            {% else %}
-                                                <td> {{ attribute(item, field)|join(',') }} </td>
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        {% if actions is defined and not actions is empty %}
-                                            <td>
-                                                {% if 'edit' in actions %}
-                                                    <a href="{{ path(route_edit, {'id': item.id}) }}"><i class="fa fa-edit"></i></a>
-                                                {% endif %}
-                                                {% if 'delete' in actions %}
-                                                    <a href="javascript:void(0);" onclick="deleteItem('{{ path(route_delete, {'id': item.id }) }}');"><i class="fa fa-remove"></i></a>
-                                                {% endif %}
-                                                {% if 'create_child' in actions %}
-                                                    <a href="{{ path(route_create_child, {'id': item.id}) }}"><i class="fa fa-plus-square"></i></a>
-                                                {% endif %}
-                                            </td>
-                                        {% endif %}
-                                    </tr>
-
-
-                                {% endfor %}
+                                {{ _self.table_rows(items, fields, actions) }}
                             </tbody>
                             <tfoot>
                                 <tr>

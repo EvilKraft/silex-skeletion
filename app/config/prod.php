@@ -36,7 +36,7 @@ $app['db.options'] = array(
 );
 
 $app['orm.proxies_dir'] = $app['cache.path'].'/doctrine/proxies';
-//$app['orm.default_cache'] = 'array';
+$app['orm.auto_generate_proxies'] = $app['debug'];  //php vendor/bin/doctrine orm:generate-proxies //for manually generation
 $app['orm.default_cache'] = array(
     'driver' => 'filesystem',
     'path' => $app['cache.path'].'/doctrine/cache',

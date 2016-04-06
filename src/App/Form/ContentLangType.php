@@ -7,31 +7,37 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+
+
 class ContentLangType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id', 'hidden', array(
+            ->add('id', HiddenType::class, array(
                 'required'  => false,
             ))
-            ->add('languageId', 'hidden', array(
+            ->add('languageId', HiddenType::class, array(
                 'required'  => false,
             ))
-            ->add('title', 'text', array(
-                'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
+            ->add('title', TextType::class, array(
+            //    'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
                 'attr' => array('class' => 'form-control', 'placeholder' => 'Title'),
             ))
-            ->add('description', 'text', array(
-                'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
+            ->add('description', TextType::class, array(
+            //    'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
                 'attr' => array('class' => 'form-control', 'placeholder' => 'Description'),
             ))
-            ->add('keywords', 'text', array(
-                'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
+            ->add('keywords', TextType::class, array(
+            //    'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
                 'attr' => array('class' => 'form-control', 'placeholder' => 'Keywords'),
             ))
-            ->add('full', 'textarea', array(
-                'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
+            ->add('full', TextareaType::class, array(
+            //    'constraints' => array(new Assert\NotBlank(), new Assert\Length(array('min' => 3))),
                 'attr' => array('class' => 'form-control',),
             ))
         ;

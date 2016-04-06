@@ -18,9 +18,16 @@ class Content extends Admin
     protected static $page_title = 'Content';
     protected static $page_desc  = '';
 
+    protected static $roles = array(
+        'ROLE_CONTENT_VIEW'   => 'View',
+        'ROLE_CONTENT_CREATE' => 'Create',
+        'ROLE_CONTENT_UPDATE' => 'Update',
+        'ROLE_CONTENT_DELETE' => 'Delete',
+    );
+
     protected $sortTable  = false;
     protected $showFields = array('id', 'getLaveledTitle', 'alias');
-    protected $actions    = array('edit', 'delete', 'create_child');
+    protected $actions    = array('edit', 'delete', 'create_child', 'move');
 
     public function connect(Application $app)
     {
@@ -36,10 +43,12 @@ class Content extends Admin
         $controllers->get("/{id}/create",         [$this, 'create']           )->bind('admin_content_createChild')->assert('id', '\d+');
         $controllers->post("/",                   [$this, 'create']           )->bind('admin_content_store');
 
-        $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_content_edit');
-        $controllers->put("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_content_update');
-        $controllers->delete("/{id}",             [$this, 'destroy']          )->assert('id', '\d+')->bind('admin_content_delete');
+        $controllers->get("/{id}",                [$this, 'update']           )->bind('admin_content_edit')->assert('id', '\d+');
+        $controllers->put("/{id}",                [$this, 'update']           )->bind('admin_content_update')->assert('id', '\d+');
+        $controllers->delete("/{id}",             [$this, 'destroy']          )->bind('admin_content_delete')->assert('id', '\d+');
         $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_content_deleteSelected');
+
+        $controllers->put("/{id}/move",           [$this, 'move']             )->bind('admin_content_move')->assert('id', '\d+');
 
         //->convert('id', function ($id) { return (int) $id; });
 
@@ -58,16 +67,15 @@ class Content extends Admin
 
         $this->AdminLTEPlugins['dataTables'] = true;
 
-        $query = $this->em()
-            ->createQueryBuilder()
+        $query = $this->em()->createQueryBuilder()
             ->select('node')
             ->from(self::$entity, 'node')
+            ->where('node.parent IS NOT NULL')
             ->orderBy('node.root, node.lft', 'ASC')
             ->getQuery()
         ;
-        $tree = $query->getResult();
+        $tree = $this->em()->getRepository(self::$entity)->buildTreeArrayOfObjects($query->getResult());
 
-       // $this->data['items']   = $this->em()->getRepository(self::$entity)->findAll();
         $this->data['items']      = $tree;
         $this->data['fields']     = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
         $this->data['actions']    = $this->actions;
@@ -90,28 +98,29 @@ class Content extends Admin
             }
         }
 
-        $form = $app['form.factory']->create(new static::$form($app), $item, array(
+        if(!is_null($id)){
+            $parent = $this->em()->getRepository(self::$entity)->find($id);
+            if(is_null($parent)){
+                throw new Exception('Item '.$id.' not found!');
+            }
+            $item->setParent($parent);
+        }
+
+
+        $form = $app['form.factory']->create(static::$form, $item, array(
             'method' => 'POST',
             'action' => $app->path('admin_content_store'),
             'attr'   => array('role' => 'form'),
             'langs'  => $langs,
         ));
 
-        if(!is_null($id)){
-            $parent = $this->em()->getRepository(self::$entity)->find($id);
-            if(is_null($parent)){
-                throw new Exception('Item '.$id.' not found!');
-            }
-            $form->get('parentId')->setData($parent->getId());
-        }
-
-
         if ($request->isMethod('POST')) {
 
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $item->setParent($this->em()->getRepository(self::$entity)->find($form->get('parentId')->getData()));
+                $item->setParent($form->get('parentId')->getData());
+
                 $this->em()->getRepository(self::$entity)->save($item);
 
                 $app['session']->getFlashBag()->add('success', 'The item has been created.');
@@ -144,19 +153,20 @@ class Content extends Admin
             }
         }
 
-        $form = $this->app['form.factory']->create(new static::$form($app), $item, array(
+        $form = $this->app['form.factory']->create(static::$form, $item, array(
             'method' => 'PUT',
             'action' => $this->app->path('admin_content_update', array('id' => $id)),
             'attr'   => array('role' => 'form'),
             'langs'  => $langs,
         ));
 
-
         if ($this->app['request']->isMethod('PUT')) {
 
             $form->handleRequest($this->app['request']);
 
             if ($form->isValid()) {
+                $item->setParent($form->get('parentId')->getData());
+
                 $this->em()->getRepository(self::$entity)->save($item);
 
                 $this->app['session']->getFlashBag()->add('success', 'The item '.$item->getId().' has been updated.');
@@ -203,4 +213,23 @@ class Content extends Admin
         return '';
     }
 
+    public function move(Request $request, Application $app, $id){
+        $item = $this->em()->getRepository(self::$entity)->find($id);
+
+        if(is_null($item)){
+            $this->app['session']->getFlashBag()->add('danger', 'Item was not found!');
+            return $this->app->redirect($this->app->path($this->cancel_route));
+        }
+
+        switch($request->get('direction')){
+            case 'up'   : $this->em()->getRepository(self::$entity)->moveUp($item, 1);      break;
+            case 'down' : $this->em()->getRepository(self::$entity)->moveDown($item, 1);    break;
+            default:
+                $this->app['session']->getFlashBag()->add('danger', 'Can not move in '.$request->get('direction').' direction!');
+                return $this->app->redirect($this->app->path($this->cancel_route));
+        }
+
+        $this->app['session']->getFlashBag()->add('success', 'Item was moved!');
+        return '';
+    }
 }

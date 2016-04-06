@@ -4,8 +4,8 @@
         "twig/twig": "^1.23",
         "doctrine/dbal": "~2.3",
         "dflydev/doctrine-orm-service-provider": "~1.0.6",
-        "symfony/form": "~2.3",
-        "symfony/twig-bridge": "^2.7",
+        "symfony/twig-bridge": "^3.0",
+        "symfony/form": "^3.0",
         "symfony/security-csrf": "^3.0",
         "symfony/validator": "^3.0",
         "symfony/config": "^3.0",
@@ -20,6 +20,7 @@
 
         "symfony/doctrine-bridge": "~2.2",
         "saxulum/saxulum-doctrine-orm-manager-registry-provider": "~2.2"
+
     },
     "autoload": {
         "psr-0": {

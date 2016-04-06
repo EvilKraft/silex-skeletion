@@ -63,3 +63,52 @@ function deleteSelectedItems(url){
 
 
 }
+
+
+function moveItem(url, direction){
+	$.ajax({
+		url: url,
+		type: "PUT",
+		dataType: "json",
+		data: {direction: direction},
+		success: function (result) {
+			//	$('#table_container').prepend( result.data );
+			//	removeAlerts();
+
+			if(result.status == 'OK'){
+				location.reload();
+			}else{
+				alert(result.error);
+			}
+		}
+	});
+}
+
+function updateRoles(url, role, action){
+
+	var type;
+	switch(action){
+		case 'add'   : type = "PUT"   ; break;
+		case 'remove': type = "DELETE"; break;
+
+		default: return false;
+	}
+
+	$.ajax({
+		url: url,
+		type: type,
+		dataType: "json",
+		data: {role: role},
+		success: function (result) {
+			//$('#table_container').prepend( result.data );
+			//removeAlerts();
+
+			if(result.status == 'OK'){
+				location.reload();
+			}else{
+				alert(result.error);
+			}
+
+		}
+	});
+}

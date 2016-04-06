@@ -9,21 +9,8 @@ use App\Entity\Languages;
 /**
  * Language repository
  */
-class LanguageRepository extends EntityRepository
+class LanguageRepository extends AbstractRepository
 {
-
-    public function save(\App\Entity\Languages $item)
-    {
-        $this->_em->persist($item);
-        $this->_em->flush();
-    }
-
-    public function delete(\App\Entity\Languages $item)
-    {
-        $this->_em->remove($item);
-        $this->_em->flush();
-    }
-
     public function findAllActive(){
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('l')
@@ -33,5 +20,4 @@ class LanguageRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
 }

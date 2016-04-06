@@ -5,7 +5,7 @@
 // as a workaround for https://github.com/silexphp/Silex/pull/768.
 //$app['controllers']->convert('user', function ($id) use ($app) {
 //    if ($id) {
-//        return $app['repository.user']->find($id);
+//        return $app['user.manager']->find($id);
 //    }
 //});
 
@@ -19,9 +19,10 @@ $app->match('/login_redirect', 'App\Auth::loginRedirectAction')->bind('login-red
 
 
 
-$app->mount('/'.$app['admin_dir'],            new App\Controller\Admin\Dashboard($app));
-$app->mount('/'.$app['admin_dir'].'/users',   new App\Controller\Admin\User($app));
-$app->mount('/'.$app['admin_dir'].'/content', new App\Controller\Admin\Content($app));
+$app->mount('/'.$app['admin_dir'],             new App\Controller\Admin\Dashboard($app));
+$app->mount('/'.$app['admin_dir'].'/content',  new App\Controller\Admin\Content($app));
+$app->mount('/'.$app['admin_dir'].'/users',    new App\Controller\Admin\User($app));
+$app->mount('/'.$app['admin_dir'].'/security', new App\Controller\Admin\Security($app));
 
 /*
 $app->get('/'.$app['admin_dir'].'/users',                 'App\Controller\AdminUserController::indexAction' )->bind('admin_users');

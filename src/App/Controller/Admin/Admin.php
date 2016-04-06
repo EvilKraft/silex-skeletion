@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 
 /**
@@ -18,10 +19,13 @@ abstract class Admin extends \App\Controller
     protected static $form;
     protected static $icon_class = 'fa fa-circle-o';
 
+    protected static $roles;
+
     protected $tpl_path = 'admin/';
 
     protected $AdminLTEPlugins = array(
         'dataTables' => false,
+        'select2'    => false,
 
         'slimScroll' => false,
         'FastClick'  => false,
@@ -41,6 +45,9 @@ abstract class Admin extends \App\Controller
         if(is_null(static::$form)){
             throw new \Exception('Form was not set.');
         }
+        if(!is_array(static::$roles)){
+            throw new \Exception('Roles was not set.');
+        }
     }
 
 
@@ -48,9 +55,11 @@ abstract class Admin extends \App\Controller
         return static::$icon_class;
     }
 
+    public static function getRoles(){
+        return static::$roles;
+    }
 
-    protected function getLeftMenuItems(){
-
+    protected function getAdminControllers(){
         $current_route     = $this->app['request']->get("_route");
         $current_route_url = $this->app['request']->getRequestUri();
 
@@ -66,13 +75,22 @@ abstract class Admin extends \App\Controller
                             'icon'   => $controller::getIcon(),
                             'url'    => $this->app->path($key),
                             'active' => ($key == $current_route),
+                            'roles' => $controller::getRoles(),
                         );
                     }
                 }
             }
         }
 
-        $items[] = array(
+
+
+        return $items;
+    }
+
+    protected function getLeftMenuItems(){
+        $items = $this->getAdminControllers();
+
+        $items['Reports'] = array(
             'title'  => 'Reports',
             'icon'   => 'fa fa-line-chart',
             'url'    => '#',
@@ -84,6 +102,13 @@ abstract class Admin extends \App\Controller
             )
         );
 
+        foreach($items as $controllerName => $item) {
+            $role = ($controllerName == 'Dashboard') ? 'ROLE_ADMIN' : 'ROLE_'.strtoupper($controllerName).'_VIEW';
+
+            if(!$this->app['security.authorization_checker']->isGranted($role)){
+                unset($items[$controllerName]);
+            }
+        }
 
         return $items;
     }
@@ -99,5 +124,11 @@ abstract class Admin extends \App\Controller
         $this->twig()->addGlobal('logged_user', $logged_user);
 
         parent::initTwig();
+    }
+
+     protected function isGranted($role){
+        if(!$this->app['security.authorization_checker']->isGranted($role)) {
+            throw new AccessDeniedException();
+        }
     }
 }

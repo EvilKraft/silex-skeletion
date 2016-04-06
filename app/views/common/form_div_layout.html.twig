@@ -1,7 +1,7 @@
 {% extends "form_div_layout.html.twig" %}
 
 {# Widgets #}
-
+{#
 {% block choice_widget_expanded %}
 {% spaceless %}
     {% for child in form %}
@@ -17,6 +17,42 @@
     {% endfor %}
 {% endspaceless %}
 {% endblock choice_widget_expanded %}
+#}
+
+{%- block choice_widget_expanded -%}
+<div {{ block('widget_container_attributes') }}>
+    {% for name, choices in form.vars.choices %}
+        {% if choices is iterable  %}
+            <label class="control-label">
+                {{ choice_translation_domain is same as(false) ? name : name|trans({}, choice_translation_domain) }}
+            </label>
+            <div style="padding-left:20px">
+                {% for key,choice in choices %}
+                    {{ form_label(
+                        form[key],
+                        null,
+                        {
+                            in_choice_list: true,
+                            widget        : form_widget(form[key]),
+                            multiple      : multiple,
+                        }
+                    ) }}
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form_label(
+                form[name],
+                null,
+                {
+                    in_choice_list: true,
+                    widget        : form_widget(form[name]),
+                    multiple      : multiple,
+                }
+            ) }}
+        {% endif %}
+    {% endfor %}
+</div>
+{%- endblock choice_widget_expanded -%}
 
 {% block datetime_widget %}
 {% spaceless %}
@@ -116,15 +152,25 @@
 
         {% if multiple is defined and multiple %}
             {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' checkbox')|trim}) %}
+
+            <div class="checkbox">
         {% elseif multiple is defined and not multiple %}
             {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' radio')|trim}) %}
+
+            <div class="radio">
         {% endif %}
+
+
         <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
             {{ widget|raw }}
             <span>
                 {{ label|trans({}, translation_domain) }}
             </span>
         </label>
+
+        {% if multiple is defined %}
+            </div>
+        {% endif %}
     {% else %}
         {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' control-label')|trim}) %}
         {{ parent() }}
@@ -139,13 +185,13 @@
     {% if 'langtabs' in form.vars.block_prefixes %}
         {{ block('langtabs_widget') }}
     {% else %}
-    <div class="form-group{% if not form.vars.valid %} has-error{% endif %}">
-        {{ form_label(form, label|default(null)) }}
-        <div class="controls">
-            {{ form_widget(form) }}
-            {{ form_errors(form) }}
+        <div class="form-group{% if not form.vars.valid %} has-error{% endif %}">
+            {{ form_label(form, label|default(null)) }}
+            <div class="controls">
+                {{ form_widget(form) }}
+                {{ form_errors(form) }}
+            </div>
         </div>
-    </div>
     {% endif %}
 {% endspaceless %}
 {% endblock form_row %}
@@ -173,7 +219,7 @@
         </ul>
         <div class="tab-content">
             {% for rows in form %}
-                {% set tab_attr = attr|merge({'class': 'tab-pane' ~ (active_lang == rows.languageId.vars.value ? ' active' : '') ~ ' ' ~ attr.class|default(''), 'id': 'tab_' ~ rows.languageId.vars.value }) %}
+                {% set tab_attr = attr|merge({'class': 'tab-pane' ~ (active_lang == rows.vars.data.getlanguageId ? ' active' : '') ~ ' ' ~ attr.class|default(''), 'id': 'tab_' ~ rows.vars.data.languageId }) %}
                 <div{% for attrname, attrvalue in tab_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
                     {{ form_widget(rows) }}
                 </div>
