@@ -28,7 +28,8 @@ class Frontend extends \App\Controller
 
 
 
-        $controllers->get("/",    [$this, 'indexAction']  )->bind('homepage');
+        $controllers->get("/",     [$this, 'indexAction']  )->bind('homepage');
+        $controllers->get("/test", [$this, 'testAction']  )->bind('test_page');
 
 
 
@@ -65,6 +66,16 @@ class Frontend extends \App\Controller
     public function indexAction(Request $request, Application $app)
     {
         self::$page_title = 'Main Page';
+
+        $this->template = 'index';
+        return '';
+    }
+
+    public function testAction(Request $request, Application $app)
+    {
+        dump($app['locale']);
+
+        self::$page_title = 'Test Page';
 
         $this->template = 'index';
         return '';

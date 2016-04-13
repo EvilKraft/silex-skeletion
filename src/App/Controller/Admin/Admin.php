@@ -65,24 +65,24 @@ abstract class Admin extends \App\Controller
 
         $items = array();
         foreach($this->app['routes'] as $key => $route) {
-            $controller = $route->getDefault('_controller')[0];
+            if(is_array($route->getDefault('_controller'))){
+                $controller = $route->getDefault('_controller')[0];
 
-            if(is_object($controller)){
-                if(preg_match('/App\\\Controller\\\Admin\\\(.*)$/', get_class($controller), $matches)) {
-                    if (!array_key_exists($matches[1], $items)) {
-                        $items[$matches[1]] = array(
-                            'title'  => $controller::getTitle(),
-                            'icon'   => $controller::getIcon(),
-                            'url'    => $this->app->path($key),
-                            'active' => ($key == $current_route),
-                            'roles' => $controller::getRoles(),
-                        );
+                if(is_object($controller)){
+                    if(preg_match('/'.addslashes( __NAMESPACE__).'\\\(.*)$/', get_class($controller), $matches)) {
+                        if (!array_key_exists($matches[1], $items)) {
+                            $items[$matches[1]] = array(
+                                'title'  => $controller::getTitle(),
+                                'icon'   => $controller::getIcon(),
+                                'url'    => $this->app->path($key),
+                                'active' => ($key == $current_route),
+                                'roles' => $controller::getRoles(),
+                            );
+                        }
                     }
                 }
             }
         }
-
-
 
         return $items;
     }

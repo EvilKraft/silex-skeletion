@@ -32,7 +32,7 @@ class Dashboard extends Admin
             // check for something here
         });
 
-        $controllers->get("/",          [$this, 'indexAction']  )->bind('admin_dashboard');
+        $controllers->get("/", [$this, 'indexAction'])->bind('admin_dashboard');
 
         $controllers->after(function (Request $request, Response $response) use ($app) {
             $this->after($request, $response);

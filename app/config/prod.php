@@ -7,7 +7,6 @@ define("ROOT_PATH",    realpath(__DIR__ . "/../../"));
 define("WEB_PATH",     realpath(ROOT_PATH . "/web/"));
 define("UPLOADS_PATH", realpath(WEB_PATH . "/uploads/"));
 
-
 // Cache
 $app['cache.path'] = __DIR__ . '/../cache';
 

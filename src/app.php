@@ -11,6 +11,10 @@ use Symfony\Component\Debug\ExceptionHandler;
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());
 
+
+
+
+
 //Setting Doctrine2 extensions
 //http://stackoverflow.com/questions/10676242/using-doctrine2-sluggable-extension-with-silex
 //http://silex-doctrine-extensions.readthedocs.org/en/latest/doctrine.html
@@ -27,6 +31,11 @@ $app->register(new Silex\Provider\ValidatorServiceProvider());
 $app->register(new Silex\Provider\TranslationServiceProvider());
 //$app->register(new Silex\Provider\SwiftmailerServiceProvider());
 
+
+$app->register(new Jenyak\I18nRouting\Provider\I18nRoutingServiceProvider());
+$locales = $app['orm.em']->getRepository('\App\Entity\Languages')->getActiveLocales();
+$app['locale'] = reset($locales);
+$app['i18n_routing.locales'] = $locales;
 
 $app->register(new Saxulum\DoctrineOrmManagerRegistry\Silex\Provider\DoctrineOrmManagerRegistryProvider());
 
@@ -126,51 +135,7 @@ $app->before(function (Request $request) {
 
 // Protect admin urls.
 $app->before(function (Request $request) use ($app) {
-//    $protected = array(
-//        '/'.$app['admin_dir'].'/' => 'ROLE_ADMIN',
-//        '/me' => 'ROLE_USER',
-//    );
-//    $path = $request->getPathInfo();
-//    foreach ($protected as $protectedPath => $role) {
-//        if (strpos($path, $protectedPath) !== FALSE && !$app['security']->isGranted($role)) {
-//            throw new AccessDeniedException();
-//        }
-//    }
-
     /*
-        $token = $app['security.token_storage']->getToken();
-
-        if (null !== $token) {
-            $user = $token->getUser();
-
-            // Get list of roles for current user
-            $roles = $token->getRoles();
-            // Tranform this list in array
-            $rolesTab = array_map(function($role){
-                return $role->getRole();
-            }, $roles);
-        }
-
-        if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_ANONYMOUSLY')) {
-            echo 'IS_AUTHENTICATED_ANONYMOUSLY'.'<br>';
-        }
-        if ($app['security.authorization_checker']->isGranted('ROLE_ADMIN')) {
-            echo 'ROLE_ADMIN'.'<br>';
-        }
-        if ($app['security.authorization_checker']->isGranted('ROLE_CALL_OPERATOR')) {
-            echo 'ROLE_CALL_OPERATOR'.'<br>';
-        }
-        if ($app['security.authorization_checker']->isGranted('ROLE_OFFICE_USER')) {
-            echo 'ROLE_OFFICE_USER'.'<br>';
-        }
-        if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {
-            echo 'IS_AUTHENTICATED_FULLY'.'<br>';
-        }
-        if ($app['security.authorization_checker']->isGranted('ROLE_USER')) {
-            echo 'ROLE_USER'.'<br>';
-        }
-
-
         $session = $request->getSession();
         $secured = unserialize($session->get('_security_secured'));
     */

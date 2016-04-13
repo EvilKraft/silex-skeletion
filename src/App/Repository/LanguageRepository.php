@@ -20,4 +20,13 @@ class LanguageRepository extends AbstractRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getActiveLocales(){
+        $locales = array();
+        foreach($this->findAllActive() as $lang){
+            $locales[] = $lang->getIso();
+        }
+
+        return $locales;
+    }
 }

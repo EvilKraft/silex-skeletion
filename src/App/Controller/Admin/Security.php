@@ -34,7 +34,6 @@ class Security extends Admin
 
     public function connect(Application $app)
     {
-
         $self = $this;
         $checkView   = function () use ($self){$self->isGranted('ROLE_SECURITY_VIEW');};
         $checkCreate = function () use ($self){$self->isGranted('ROLE_SECURITY_CREATE');};
