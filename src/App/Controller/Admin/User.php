@@ -52,10 +52,7 @@ class User extends Admin
 
         //->convert('id', function ($id) { return (int) $id; });
 
-
-        $controllers->after(function (Request $request, Response $response) use ($app) {
-            return $this->after($request, $response);
-        });
+        $controllers->after(array($this, 'after'));
 
         return $controllers;
     }

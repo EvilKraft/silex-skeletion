@@ -33,16 +33,16 @@ class Dashboard extends Admin
         });
 
         $controllers->get("/", [$this, 'indexAction'])->bind('admin_dashboard');
+        $controllers->get("/test", [$this, 'indexAction'])->bind('admin_dashboard_test');
 
-        $controllers->after(function (Request $request, Response $response) use ($app) {
-            $this->after($request, $response);
-        });
+        $controllers->after(array($this, 'after'));
+        //$controllers->setOption('i18n', false);
 
         return $controllers;
     }
 
-
     public function indexAction(Request $request, Application $app){
+
         $this->data['orders']   = 150;
         $this->data['users']    = $app['user.manager']->getCount();
         $this->data['rate']     = 53;

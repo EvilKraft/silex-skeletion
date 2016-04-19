@@ -12,9 +12,6 @@ $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());
 
 
-
-
-
 //Setting Doctrine2 extensions
 //http://stackoverflow.com/questions/10676242/using-doctrine2-sluggable-extension-with-silex
 //http://silex-doctrine-extensions.readthedocs.org/en/latest/doctrine.html
@@ -23,45 +20,38 @@ $app['db.event_manager']->addEventSubscriber(new Gedmo\Tree\TreeListener());
 
 
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
-
 $app->register(new Silex\Provider\FormServiceProvider());
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
-$app->register(new Silex\Provider\TranslationServiceProvider());
 //$app->register(new Silex\Provider\SwiftmailerServiceProvider());
 
 
-$app->register(new Jenyak\I18nRouting\Provider\I18nRoutingServiceProvider());
 $locales = $app['orm.em']->getRepository('\App\Entity\Languages')->getActiveLocales();
 $app['locale'] = reset($locales);
 $app['i18n_routing.locales'] = $locales;
+$app->register(new Silex\Provider\TranslationServiceProvider(), array());
+$app->register(new Jenyak\I18nRouting\Provider\I18nRoutingServiceProvider());
 
 $app->register(new Saxulum\DoctrineOrmManagerRegistry\Silex\Provider\DoctrineOrmManagerRegistryProvider());
-
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
 // Token generator.
 $app['user.tokenGenerator'] = $app->share(function($app) { return new \App\TokenGenerator($app['logger']); });
-
 // Register repositories.
 $app['user.manager'] = $app->share(function ($app) {return new App\Repository\UserRepository($app);});
 
 $hierarhy = $app['orm.em']->getRepository('\App\Entity\Groups')->getRoleHierarchy();
-
-//dump($hierarhy);
-
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
         // Any other URL requires auth.
         'index' => array(
             'pattern' => '^.*$',
             'form'      => array(
-                'login_path'         => '/login',
-                'check_path'         => '/login_check',
-                'username_parameter' => 'username',
-                'password_parameter' => 'password',
-
+                'login_path'                     => '/login',
+                'check_path'                     => '/login_check',
+                'username_parameter'             => 'username',
+                'password_parameter'             => 'password',
                 'default_target_path'            => '/login_redirect',
                 'always_use_default_target_path' => true
             ),
@@ -73,44 +63,38 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
         ),
     ),
     'security.role_hierarchy' => $hierarhy,
-
-//    'security.role_hierarchy' => array(
-//        'ROLE_ADMIN' => array('ROLE_USER'),
-//    ),
-
     'security.access_rules' => array(
         array('^/login$',                  'IS_AUTHENTICATED_ANONYMOUSLY'),
         array('^/register',                'IS_AUTHENTICATED_ANONYMOUSLY'),
         //array('^/'.$app['admin_dir'].'.*', 'ROLE_ADMIN'),
         array('^/'.$app['admin_dir'].'.*', 'IS_AUTHENTICATED_ANONYMOUSLY'),
-
     //    array('^.*$', 'IS_AUTHENTICATED_FULLY'),
     ),
 ));
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.options' => array(
-        'cache' => isset($app['twig.options.cache']) ? $app['twig.options.cache'] : false,
+        'cache' => defined('TWIG_CACHE_PATH') ? TWIG_CACHE_PATH : false,
         'strict_variables' => true,
     ),
     'twig.form.templates' => array('form_div_layout.html.twig', 'common/form_div_layout.html.twig'),
-    'twig.path' => array(__DIR__ . '/../app/views')
+    'twig.path' => array(RESOURCES_PATH.'/views')
 ));
+
 
 if($app['debug']){
 
     $app->register(new Silex\Provider\MonologServiceProvider(), array(
-        'monolog.logfile' => __DIR__.'/../app/logs/development.log',
+        'monolog.logfile' => RESOURCES_PATH.'/logs/development.log',
+    //    'monolog.level'   => 300 // = Logger::WARNING
     ));
 
 
     $app->register(new Silex\Provider\HttpFragmentServiceProvider());
-
     $app->register(new Silex\Provider\WebProfilerServiceProvider(), array(
-        'profiler.cache_dir' => __DIR__.'/../app/cache/profiler',
+        'profiler.cache_dir' => CACHE_PATH.'/profiler',
         'profiler.mount_prefix' => '/_profiler', // this is the default
     ));
-
     $app->register(new Silex\Provider\DebugServiceProvider(), array(
         'debug.max_items' => 250, // this is the default
         'debug.max_string_length' => -1, // this is the default
@@ -126,19 +110,37 @@ $app['form.types'] = $app->share($app->extend('form.types', function ($types) us
 }));
 
 
-$app->before(function (Request $request) {
+$app->before(function (Request $request) use ($app) {
     if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
         $data = json_decode($request->getContent(), true);
         $request->request->replace(is_array($data) ? $data : array());
     }
+
+    $app['translator']->setLocale($app['locale']);
+    $app['translator']->addLoader('yaml', new Symfony\Component\Translation\Loader\YamlFileLoader());
+    $translates = array(
+        array('xliff', ROOT_PATH.'/vendor/symfony/form/Resources/translations/validators.'.$app['locale'].'.xlf',      $app['locale'], 'validators'),
+        array('xliff', ROOT_PATH.'/vendor/symfony/validator/Resources/translations/validators.'.$app['locale'].'.xlf', $app['locale'], 'validators'),
+        array('yaml',  RESOURCES_PATH.'/translations/validators.'.$app['locale'].'.yml',                               $app['locale'], 'validators'),
+        array('yaml',  RESOURCES_PATH.'/translations/'.$app['locale'].'.yml',                                          $app['locale'], 'messages'),
+    );
+    foreach($translates as $translate){
+        if(file_exists($translate[1])){
+            call_user_func_array(array($app['translator'], "addResource"),$translate);
+        }
+    }
 });
 
-// Protect admin urls.
-$app->before(function (Request $request) use ($app) {
-    /*
-        $session = $request->getSession();
-        $secured = unserialize($session->get('_security_secured'));
-    */
+// do some security stuff
+$app->after(function (Request $request, Response $response) {
+    $response->headers->set('X-Frame-Options', 'DENY');             // deny show page in iframe
+    $response->headers->set('X-Content-Type-Options', 'nosniff');   // for IE
+    $response->headers->set('X-XSS-Protection', '1; mode=block;');  // for IE
+
+    $response->headers->set('X-UA-Compatible', 'IE=edge');
+
+//    $response->headers->set('X-Content-Security-Policy', 'allow \'self\';');    // for IE
+//    $response->headers->set('X-WebKit-CSP', 'allow \'self\';');                 // for FF/Chrome
 });
 
 //need to use put, delete, patch, options methods

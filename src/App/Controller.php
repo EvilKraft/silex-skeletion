@@ -66,7 +66,7 @@ abstract class Controller implements ControllerProviderInterface
         $this->twig()->addGlobal('page_desc', static::$page_desc);
     }
 
-    protected function after(Request $request, Response $response){
+    public function after(Request $request, Response $response, Application $app){
         if($response->isRedirection()){ return; }
 
        // if ('application/json' === $request->headers->get('Accept')) {

@@ -9,7 +9,7 @@
         <div class="alert alert-{{ alertType.alert }} alert-dismissable">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             <h4><i class="icon {{ alertType.icon }}"></i> {{ alertType.alert|title }}!</h4>
-            {{ message }}
+            {{ message|trans }}
         </div>
     {% endfor %}
 {% endfor %}

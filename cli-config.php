@@ -15,7 +15,7 @@ AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
 
 $app = new Silex\Application();
 
-require __DIR__ . '/app/config/dev.php';
+require __DIR__ . '/resources/config/dev.php';
 
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());

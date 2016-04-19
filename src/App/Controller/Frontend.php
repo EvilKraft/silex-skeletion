@@ -55,9 +55,7 @@ class Frontend extends \App\Controller
             );
         });
 
-        $controllers->after(function (Request $request, Response $response) use ($app) {
-            $this->after($request, $response);
-        });
+        $controllers->after(array($this, 'after'));
 
         return $controllers;
     }
@@ -73,8 +71,6 @@ class Frontend extends \App\Controller
 
     public function testAction(Request $request, Application $app)
     {
-        dump($app['locale']);
-
         self::$page_title = 'Test Page';
 
         $this->template = 'index';

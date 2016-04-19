@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e4e5794989ba9cac01c8558e0333a444",
-    "content-hash": "aec6733fea080afcf3b44f950ace220f",
+    "hash": "a8bc21290d69b92f1e72194bdd1853c8",
+    "content-hash": "90197bb986d91f727aed9cebb7ba5bb5",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -714,12 +714,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Atlantic18/DoctrineExtensions.git",
-                "reference": "90c6099d4a2e9a62e78dfefb190c9ebe4a603253"
+                "reference": "92b131021d7a2265ab59a366c440b1a8955d067b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/90c6099d4a2e9a62e78dfefb190c9ebe4a603253",
-                "reference": "90c6099d4a2e9a62e78dfefb190c9ebe4a603253",
+                "url": "https://api.github.com/repos/Atlantic18/DoctrineExtensions/zipball/92b131021d7a2265ab59a366c440b1a8955d067b",
+                "reference": "92b131021d7a2265ab59a366c440b1a8955d067b",
                 "shasum": ""
             },
             "require": {
@@ -784,7 +784,7 @@
                 "tree",
                 "uploadable"
             ],
-            "time": "2016-03-30 14:52:22"
+            "time": "2016-04-16 17:09:43"
         },
         {
             "name": "jenyak/i18n-routing-service-provider",
@@ -792,7 +792,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EvilKraft/I18nRoutingServiceProvider",
-                "reference": "9bce85588ca9d1c337fb2ddceeca028b627911d7"
+                "reference": "dc5d286a917879edd992c2a46fd9844320b58fd9"
             },
             "require": {
                 "silex/silex": "~1.3",
@@ -815,7 +815,7 @@
                 "i18n routing",
                 "silex"
             ],
-            "time": "2016-04-13 12:01:02"
+            "time": "2016-04-13 16:39:32"
         },
         {
             "name": "jeromemacias/silex-debug",
@@ -2989,6 +2989,55 @@
             "description": "Symfony WebProfilerBundle",
             "homepage": "https://symfony.com",
             "time": "2016-03-19 17:38:42"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v3.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "0047c8366744a16de7516622c5b7355336afae96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/0047c8366744a16de7516622c5b7355336afae96",
+                "reference": "0047c8366744a16de7516622c5b7355336afae96",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Yaml\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "https://symfony.com",
+            "time": "2016-03-04 07:55:57"
         },
         {
             "name": "twig/twig",

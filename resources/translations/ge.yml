@@ -1,0 +1,3 @@
+Hello World!: 'Hello Georgia!'
+hello: Hello %name%
+goodbye: Goodbye %name%

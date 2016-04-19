@@ -60,9 +60,7 @@ class Security extends Admin
         $controllers->put("/groups/{id}/roles",             [$this, 'rolesAdd']          )->bind('admin_groups_roles_add')->assert('id', '\d+')->before($checkUpdate);
         $controllers->delete("/groups/{id}/roles",          [$this, 'rolesRemove']       )->bind('admin_groups_roles_remove')->assert('id', '\d+')->before($checkUpdate);
 
-        $controllers->after(function (Request $request, Response $response) use ($app) {
-            return $this->after($request, $response);
-        });
+        $controllers->after(array($this, 'after'));
 
         return $controllers;
     }
