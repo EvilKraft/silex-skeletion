@@ -2,14 +2,11 @@
 Thumbs.db
 .DS_Store
 
-app/cache/doctrine/cache/*
-!app/cache/doctrine/cache/.gitkeep
+resources/cache/*
+!resources/cache/.gitkeep
 
-app/cache/twig/*
-!app/cache/twig/.gitkeep
-
-app/logs/*
-!app/logs/.gitkeep
+resources/logs/*
+!resources/logs/.gitkeep
 
 vendor/
 
