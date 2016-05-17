@@ -12,3 +12,6 @@ app/logs/*
 !app/logs/.gitkeep
 
 vendor/
+
+web/components/AdminLTE/
+web/components/bootstrap/
