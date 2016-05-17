@@ -18,7 +18,7 @@ $app['db.options'] = array(
 );
 
 // SwiftMailer
-$app['swiftmailer.options'] = array(
+$app['mailer.options'] = array(
     'host' => 'host',
     'port' => '25',
     'username' => 'username',
@@ -29,13 +29,6 @@ $app['swiftmailer.options'] = array(
 
 // Timezone.
 date_default_timezone_set('Europe/Paris');
-
-define("ROOT_PATH",         realpath(__DIR__ . "/../../"));             // Root directory
-define("WEB_PATH",          realpath(ROOT_PATH . "/web/"));             // Web directory
-define("UPLOADS_PATH",      realpath(WEB_PATH . "/uploads/"));          // Uploads
-define("RESOURCES_PATH",    realpath(ROOT_PATH . "/resources/"));       // Resources
-define("CACHE_PATH",        realpath(RESOURCES_PATH . "/cache/"));      // Cache
-define("TWIG_CACHE_PATH",   realpath(CACHE_PATH.'/twig/'));             // Twig cache
 
 // Administration Pannel
 $app['admin_dir']        = 'admin';
@@ -54,7 +47,7 @@ $app['orm.em.options'] = array(
         array(
             "type" => "annotation",
             "namespace" => 'App\Entity',
-            "path" => ROOT_PATH.'/src/App/Entity',
+            "path" => APP_PATH.'/App/Entity',
             "use_simple_annotation_reader" => false,
         ),
     ),

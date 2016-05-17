@@ -12,7 +12,7 @@ class Security extends Admin
 {
 
     protected static $entity = '\App\Entity\Groups';
-    protected static $form   = '\App\Form\GroupType';
+    protected static $form   = '\App\Form\Admin\GroupType';
 
     protected $template     = 'groups';
     protected $cancel_route = 'admin_security';

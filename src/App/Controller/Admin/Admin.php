@@ -126,7 +126,7 @@ abstract class Admin extends \App\Controller
         parent::initTwig();
     }
 
-     protected function isGranted($role){
+    protected function isGranted($role){
         if(!$this->app['security.authorization_checker']->isGranted($role)) {
             throw new AccessDeniedException();
         }

@@ -2,18 +2,16 @@
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 <!--<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>-->
 
-<!-- Bootstrap 3.3.5 JS -->
-<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/bootstrap/js/bootstrap.min.js"></script>
+{#<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>#}
 
 {% if AdminLTEPlugins['dataTables'] is defined %}
 <!-- DATA TABLES -->
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/media/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/media/js/dataTables.bootstrap.min.js"></script>
-
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Select/js/dataTables.select.min.js"></script>
-
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Buttons/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/dataTables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/dataTables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/dataTables/media/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/dataTables/extensions/Select/js/dataTables.select.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/dataTables/extensions/Buttons/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/dataTables/extensions/Buttons/js/buttons.bootstrap.min.js"></script>
 <script type="text/javascript">
     $.fn.dataTable.ext.buttons.select_all = {
         text: 'Select All',
@@ -96,12 +94,12 @@ fixed layout. -->
 {% endif %}
 {% if AdminLTEPlugins['FastClick'] is defined %}
     <!-- FastClick -->
-    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/fastClick/fastclick.min.js"></script>
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/fastclick/fastclick.min.js"></script>
 {% endif %}
 
 {% if AdminLTEPlugins['select2'] is defined %}
     <!-- Select2 -->
-    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/select2/dist/js/select2.full.min.js"></script>
+    <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/select2/select2.full.min.js"></script>
 
     <script type="text/javascript">
         $('select.select2').select2();
@@ -117,12 +115,12 @@ fixed layout. -->
 
 {% if AdminLTEPlugins['daterangepicker'] is defined %}
     <!-- date-range-picker -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
     <script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
 {% endif %}
 
 <!-- AdminLTE App -->
-<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/js/app.min.js"></script>
+<script type="text/javascript" src="{{ app.request.basepath }}/components/AdminLTE/dist/js/app.min.js"></script>
 
 
 

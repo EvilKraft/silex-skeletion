@@ -12,13 +12,14 @@
 // Register routes.
 
 $app->mount("/", new App\Controller\Frontend($app));
+$app->mount("/", new App\Controller\User($app));
 
 $app->match('/login',          'App\Auth::loginAction')->bind('login');
 $app->get('/logout',           'App\Auth::logoutAction')->bind('logout');
 $app->match('/login_redirect', 'App\Auth::loginRedirectAction')->bind('login-redirect');
 
 
-
+/* Admin Area*/
 $app->mount('/'.$app['admin_dir'],             new App\Controller\Admin\Dashboard($app));
 $app->mount('/'.$app['admin_dir'].'/content',  new App\Controller\Admin\Content($app));
 $app->mount('/'.$app['admin_dir'].'/users',    new App\Controller\Admin\User($app));

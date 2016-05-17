@@ -1,32 +1,35 @@
 <?php
 
-use Doctrine\Common\Annotations\AnnotationRegistry,
-    Symfony\Component\Console\Helper\HelperSet,
-    Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper,
-    Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper,
-    Symfony\Component\Console\Application as CliAplication,
-    Doctrine\ORM\Tools\Console\Command;
+
+// Path definitions
+define("ROOT_PATH",         realpath(__DIR__));                         // Root directory
+define("RESOURCES_PATH",    realpath(ROOT_PATH . "/resources/"));       // Resources
+define("CACHE_PATH",        realpath(RESOURCES_PATH . "/cache/"));      // Cache
+define("APP_PATH",          realpath(ROOT_PATH . "/src/"));             // Aplication
+define("VENDOR_PATH",       realpath(ROOT_PATH . "/vendor/"));          // Vendor
+
+$loader = require_once VENDOR_PATH.'/autoload.php';
+Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
 
 
-$loader = require __DIR__ ."/vendor/autoload.php";
-
-AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
+use Symfony\Component\Console\Application as CliAplication;
+use Doctrine\ORM\Tools\Console\Command;
 
 
 $app = new Silex\Application();
 
-require __DIR__ . '/resources/config/dev.php';
+require_once RESOURCES_PATH.'/config/dev.php';
 
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider());
 $app['db.event_manager']->addEventSubscriber(new Gedmo\Tree\TreeListener());
 
-$helperSet = new HelperSet(array(
-    'db' => new ConnectionHelper($app['orm.em']->getConnection()),
-    'em' => new EntityManagerHelper($app['orm.em'])
+$helperSet = new Symfony\Component\Console\Helper\HelperSet(array(
+    'db' => new Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($app['orm.em']->getConnection()),
+    'em' => new Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($app['orm.em'])
 ));
 
-$cli = new CliAplication('Doctrine Command Line Interface', Doctrine\DBAL\Version::VERSION);
+$cli = new CliAplication('My Application', Doctrine\DBAL\Version::VERSION);
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 $cli->addCommands([
@@ -36,6 +39,9 @@ $cli->addCommands([
     new Command\ValidateSchemaCommand,
     new Command\SchemaTool\CreateCommand,
     new Command\SchemaTool\UpdateCommand,
-    new Command\GenerateProxiesCommand
+    new Command\GenerateProxiesCommand,
+
+    new App\Command\HelloWorldCommand(),
+    new App\Command\ClearCacheCommand(CACHE_PATH),
 ]);
 $cli->run();

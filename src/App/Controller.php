@@ -94,6 +94,7 @@ abstract class Controller implements ControllerProviderInterface
         $response->setContent(
             $this->twig()->render($this->tpl_path.$this->template.'.twig', $this->data)
         );
+
     }
 
     public static function getTitle(){

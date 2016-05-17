@@ -10,7 +10,7 @@ class Content extends Admin
 {
 
     protected static $entity = '\App\Entity\Content';
-    protected static $form   = '\App\Form\ContentType';
+    protected static $form   = '\App\Form\Admin\ContentType';
 
     protected $template     = 'content';
     protected $cancel_route = 'admin_content';
@@ -31,24 +31,28 @@ class Content extends Admin
 
     public function connect(Application $app)
     {
+        $self = $this;
+        $checkView   = function () use ($self){$self->isGranted('ROLE_CONTENT_VIEW');};
+        $checkCreate = function () use ($self){$self->isGranted('ROLE_CONTENT_CREATE');};
+        $checkUpdate = function () use ($self){$self->isGranted('ROLE_CONTENT_UPDATE');};
+        $checkDelete = function () use ($self){$self->isGranted('ROLE_CONTENT_DELETE');};
+
         $controllers = $app["controllers_factory"];
 
-        $controllers->before(function (Request $request) use ($app) {
-            // check for something here
-        });
+        $controllers->before($checkView);
 
         $controllers->get("/",                    [$this, 'index']            )->bind('admin_content');
 
-        $controllers->get("/create",              [$this, 'create']           )->bind('admin_content_create');
-        $controllers->get("/{id}/create",         [$this, 'create']           )->bind('admin_content_createChild')->assert('id', '\d+');
-        $controllers->post("/",                   [$this, 'create']           )->bind('admin_content_store');
+        $controllers->get("/create",              [$this, 'create']           )->bind('admin_content_create')->before($checkCreate);
+        $controllers->get("/{id}/create",         [$this, 'create']           )->bind('admin_content_createChild')->before($checkCreate)->assert('id', '\d+');
+        $controllers->post("/",                   [$this, 'create']           )->bind('admin_content_store')->before($checkCreate);
 
-        $controllers->get("/{id}",                [$this, 'update']           )->bind('admin_content_edit')->assert('id', '\d+');
-        $controllers->put("/{id}",                [$this, 'update']           )->bind('admin_content_update')->assert('id', '\d+');
-        $controllers->delete("/{id}",             [$this, 'destroy']          )->bind('admin_content_delete')->assert('id', '\d+');
-        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_content_deleteSelected');
+        $controllers->get("/{id}",                [$this, 'update']           )->bind('admin_content_edit')->assert('id', '\d+')->before($checkUpdate);
+        $controllers->put("/{id}",                [$this, 'update']           )->bind('admin_content_update')->assert('id', '\d+')->before($checkUpdate);
+        $controllers->delete("/{id}",             [$this, 'destroy']          )->bind('admin_content_delete')->assert('id', '\d+')->before($checkDelete);
+        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_content_deleteSelected')->before($checkDelete);
 
-        $controllers->put("/{id}/move",           [$this, 'move']             )->bind('admin_content_move')->assert('id', '\d+');
+        $controllers->put("/{id}/move",           [$this, 'move']             )->bind('admin_content_move')->assert('id', '\d+')->before($checkUpdate);
 
         //->convert('id', function ($id) { return (int) $id; });
 

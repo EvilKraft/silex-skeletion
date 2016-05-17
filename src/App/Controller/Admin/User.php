@@ -10,7 +10,7 @@ class User extends Admin
 {
 
     protected static $entity = '\App\Entity\Users';
-    protected static $form   = '\App\Form\UserType';
+    protected static $form   = '\App\Form\Admin\UserType';
 
     protected $template     = 'users';
     protected $cancel_route = 'admin_users';
@@ -34,21 +34,33 @@ class User extends Admin
 
     public function connect(Application $app)
     {
+        $self = $this;
+        $checkView   = function () use ($self){
+            $self->isGranted('ROLE_USER_VIEW');
+        };
+        $checkCreate = function () use ($self){
+            $self->isGranted('ROLE_USER_CREATE');
+        };
+        $checkUpdate = function () use ($self){
+            $self->isGranted('ROLE_USER_UPDATE');
+        };
+        $checkDelete = function () use ($self){
+            $self->isGranted('ROLE_USER_DELETE');
+        };
+
         $controllers = $app["controllers_factory"];
 
-        $controllers->before(function (Request $request) use ($app) {
-            // check for something here
-        });
+        $controllers->before($checkView);
 
         $controllers->get("/",                    [$this, 'index']            )->bind('admin_users');
 
-        $controllers->get("/create",              [$this, 'create']           )->bind('admin_users_create');
-        $controllers->post("/",                   [$this, 'create']           )->bind('admin_users_store');
+        $controllers->get("/create",              [$this, 'create']           )->bind('admin_users_create')->before($checkCreate);
+        $controllers->post("/",                   [$this, 'create']           )->bind('admin_users_store')->before($checkCreate);
 
-        $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_edit');
-        $controllers->put("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_update');
-        $controllers->delete("/{id}",             [$this, 'destroy']          )->assert('id', '\d+')->bind('admin_users_delete');
-        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_users_deleteSelected');
+        $controllers->get("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_edit')->before($checkUpdate);
+        $controllers->put("/{id}",                [$this, 'update']           )->assert('id', '\d+')->bind('admin_users_update')->before($checkUpdate);
+        $controllers->delete("/{id}",             [$this, 'destroy']          )->assert('id', '\d+')->bind('admin_users_delete')->before($checkDelete);
+        $controllers->delete("/delete_selected",  [$this, 'destroyCollection'])->bind('admin_users_deleteSelected')->before($checkDelete);
 
         //->convert('id', function ($id) { return (int) $id; });
 
@@ -156,7 +168,6 @@ class User extends Admin
         ));
 
         if ($this->app['request']->isMethod('PUT')) {
-
             $form->handleRequest($this->app['request']);
 
             if ($form->isValid()) {
