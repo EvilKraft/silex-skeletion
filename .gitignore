@@ -8,6 +8,8 @@ resources/cache/*
 resources/logs/*
 !resources/logs/.gitkeep
 
+resources/config/mailer.php
+
 vendor/
 
 web/components/AdminLTE/

@@ -3,8 +3,8 @@
 $app['site_title']      = 'My Silex Site';
 
 // Emails.
-$app['admin_email'] = 'noreply@silex.nothing';
-$app['site_email']  = 'noreply@silex.nothing';
+$app['email.admin'] = 'noreply@silex.nothing';
+$app['email.site']  = 'noreply@silex.nothing';
 
 // Doctrine (db)
 $app['db.options'] = array(
@@ -18,14 +18,19 @@ $app['db.options'] = array(
 );
 
 // SwiftMailer
-$app['mailer.options'] = array(
-    'host' => 'host',
-    'port' => '25',
-    'username' => 'username',
-    'password' => 'password',
-    'encryption' => null,
-    'auth_mode' => null
-);
+if(file_exists(RESOURCES_PATH.'/config/mailer.php')){
+    require_once RESOURCES_PATH.'/config/mailer.php';
+}else{
+    $app['mailer.options'] = array(
+        'host' => 'host',
+        'port' => '25',
+        'username' => 'username',
+        'password' => 'password',
+        'encryption' => null,
+        'auth_mode' => null
+    );
+}
+
 
 // Timezone.
 date_default_timezone_set('Europe/Paris');

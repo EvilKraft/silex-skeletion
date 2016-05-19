@@ -90,11 +90,12 @@ abstract class Controller implements ControllerProviderInterface
             return $this->app->json($response_data);
         }
 
-        $this->initTwig();
-        $response->setContent(
-            $this->twig()->render($this->tpl_path.$this->template.'.twig', $this->data)
-        );
-
+        if($response->getContent() == ''){
+            $this->initTwig();
+            $response->setContent(
+                $this->twig()->render($this->tpl_path.$this->template.'.twig', $this->data)
+            );
+        }
     }
 
     public static function getTitle(){

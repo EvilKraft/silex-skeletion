@@ -73,7 +73,7 @@ class User extends \App\Controller
                     if ($this->isEmailConfirmationRequired) {
                         $message = \Swift_Message::newInstance()
                             ->setSubject('['.$app['site_title'].'] Registration')
-                            ->setFrom($app['site_email'])
+                            ->setFrom($app['email.site'])
                             ->setTo($user->getEmail());
 
                         $htmlBody = 'dddddd_html';

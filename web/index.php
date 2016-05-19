@@ -23,7 +23,7 @@ class Application extends Silex\Application
 $app = new Application();
 
 $app['environment'] = 'dev';
-//$app['environment'] = 'prod';
+$app['environment'] = 'prod';
 
 require_once APP_PATH.'/application.php';
 

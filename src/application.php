@@ -49,7 +49,31 @@ Request::enableHttpMethodParameterOverride();
 
 // Register ErrorHandlers
 ErrorHandler::register();
-ExceptionHandler::register($app['debug']);
+//ExceptionHandler::register($app['debug']);
+
+// Now, the hard part, handle fatal error.
+$handler = ExceptionHandler::register($app['debug']);
+$handler->setHandler(function ($exception, $x) use ($app) {
+
+    // Create an ExceptionEvent with all the informations needed.
+    $event = new Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent(
+        $app,
+        $app['request'],
+        Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+        $exception
+    );
+
+    // Hey Silex ! We have something for you, can you handle it with your exception handler ?
+    $app['dispatcher']->dispatch(Symfony\Component\HttpKernel\KernelEvents::EXCEPTION, $event);
+
+    // And now, just display the response ;)
+    $response = $event->getResponse();
+    $response->sendHeaders();
+    $response->sendContent();
+    // $response->send(); //We can't do that, something happened with the buffer, and Symfony still return its HTML.
+
+    $app->terminate($app['request'], $response);
+});
 
 // Register the error handler.
 $app->error(function (\Exception $e, $code) use ($app) {

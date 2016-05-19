@@ -41,12 +41,14 @@ class Dashboard extends Admin
         return $controllers;
     }
 
-    public function indexAction(Request $request, Application $app){
-
+    public function indexAction(Request $request, Application $app)
+    {
         $this->data['orders']   = 150;
         $this->data['users']    = $app['user.manager']->getCount();
         $this->data['rate']     = 53;
         $this->data['visitors'] = 65;
+
+        ddd();
 
         return '';
     }

@@ -74,13 +74,14 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => array(RESOURCES_PATH.'/views')
 ));
 
+$app->register(new Silex\Provider\MonologServiceProvider(), array(
+    'monolog.logfile' => RESOURCES_PATH.'/logs/development.log',
+    'monolog.level'   => 300 // = Logger::WARNING
+));
+$app->register(new App\Provider\ExtendedMonologServiceProvider());
+
 
 if($app['debug']){
-    $app->register(new Silex\Provider\MonologServiceProvider(), array(
-        'monolog.logfile' => RESOURCES_PATH.'/logs/development.log',
-        //    'monolog.level'   => 300 // = Logger::WARNING
-    ));
-
     $app->register(new Silex\Provider\HttpFragmentServiceProvider());
     $app->register(new Silex\Provider\WebProfilerServiceProvider(), array(
         'profiler.cache_dir' => CACHE_PATH.'/profiler',
@@ -97,6 +98,8 @@ if($app['debug']){
         'http_cache.cache_dir' => CACHE_PATH.'/http_cache/',
     ));
 }
+
+
 
 $app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
     $types[] = new App\Form\Types\LangtabsType();
