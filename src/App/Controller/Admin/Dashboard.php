@@ -48,8 +48,6 @@ class Dashboard extends Admin
         $this->data['rate']     = 53;
         $this->data['visitors'] = 65;
 
-        ddd();
-
         return '';
     }
 
