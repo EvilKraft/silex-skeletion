@@ -82,11 +82,21 @@ $app->error(function (\Exception $e, $code) use ($app) {
     }
 
     switch ($code) {
+        case 403:
+            $message = 'You are unauthorized to perform this action.';
+            $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);
+            break;
+
         case 404:
             $message = 'The requested page could not be found.';
             $body    = $app['twig']->render('404.twig', ['code' => $code, 'message' => $message]);
-
             break;
+
+        case 405:
+            $message = 'Method is not allowed.';
+            $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);
+            break;
+
         default:
             $message = 'We are sorry, but something went terribly wrong.';
             $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);

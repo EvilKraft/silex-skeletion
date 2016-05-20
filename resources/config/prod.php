@@ -3,8 +3,9 @@
 $app['site_title']      = 'My Silex Site';
 
 // Emails.
-$app['email.admin'] = 'noreply@silex.nothing';
-$app['email.site']  = 'noreply@silex.nothing';
+$app['email.admin']     = 'noreply@silex.nothing';
+$app['email.site']      = 'noreply@silex.nothing';  // to send notifications to users
+$app['email.feedback']  = 'noreply@silex.nothing';  // to receive feedback from users
 
 // Doctrine (db)
 $app['db.options'] = array(
