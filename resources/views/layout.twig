@@ -47,12 +47,12 @@
             <h3 class="text-muted">Project name</h3>
             <nav>
                 <ul class="nav nav-justified">
-                    <li class="active"><a href="{{ app.request.basepath }}">Home</a></li>
-                    <li><a href="#">Projects</a></li>
-                    <li><a href="#">Services</a></li>
-                    <li><a href="#">Downloads</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_home'      ? 'class="active"' }}><a href="{{ app.request.baseUrl }}/">Home</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_projects'  ? 'class="active"' }}><a href="#">Projects</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_services'  ? 'class="active"' }}><a href="#">Services</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_downloads' ? 'class="active"' }}><a href="#">Downloads</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_about'     ? 'class="active"' }}><a href="{{ path('frontend_about') }}">About</a></li>
+                    <li {{ app.request.get('_route') == 'frontend_contact'   ? 'class="active"' }}><a href="{{ path('frontend_contact') }}">Contact</a></li>
                 </ul>
             </nav>
         </div>

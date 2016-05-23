@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 class ExtendedMonologServiceProvider implements ServiceProviderInterface
 {
+    private $send_emails = false;
+
     /**
      * {@inheritdoc}
      */
@@ -32,15 +34,18 @@ class ExtendedMonologServiceProvider implements ServiceProviderInterface
             return $handler;
         });
         if (!$app['debug']) {
-            $app['monolog'] = $app->share($app->extend('monolog',
-                function ( $monolog, $app ) {
-                    /** @var $monolog Logger */
-                    $bufferHander = new BufferHandler($app['logger.swift_mailer_handler']);
-                    $fingersCrossedHandler = new FingersCrossedHandler($bufferHander, Logger::ERROR, 200);
-                    $monolog->pushHandler($fingersCrossedHandler);
-                    return $monolog;
-                }
-            ));
+            if($this->send_emails){
+                $app['monolog'] = $app->share($app->extend('monolog',
+                    function ( $monolog, $app ) {
+                        /** @var $monolog Logger */
+                        $bufferHander = new BufferHandler($app['logger.swift_mailer_handler']);
+                        $fingersCrossedHandler = new FingersCrossedHandler($bufferHander, Logger::ERROR, 200);
+                        $monolog->pushHandler($fingersCrossedHandler);
+                        return $monolog;
+                    }
+                ));
+            }
+
         }
     }
     /**

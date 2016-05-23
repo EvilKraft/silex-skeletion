@@ -109,8 +109,6 @@ class User extends \App\Controller
         $this->data['form'] = $form->createView();
 
         self::$page_title = 'Registration';
-        $this->template = 'user_register';
-
         return '';
     }
 
@@ -119,9 +117,6 @@ class User extends \App\Controller
     {
 
         self::$page_title = 'Confirm Email';
-        //$this->template = 'user_register';
-        $this->template = 'index';
-
         return '';
     }
 }

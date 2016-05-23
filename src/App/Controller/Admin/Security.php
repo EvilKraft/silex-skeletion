@@ -72,10 +72,6 @@ class Security extends Admin
     public function groups(Request $request, Application $app){
         // show the list of items
 
-        $this->template = 'groups_table';
-
-        $this->AdminLTEPlugins['dataTables'] = true;
-
         $modules = $this->getAdminControllers();
         $items = $this->em()->getRepository(self::$entity)->findAll();
 
@@ -113,6 +109,9 @@ class Security extends Admin
         $this->data['items']      = $res_array;
         $this->data['actions']    = $this->actions;
         $this->data['sort_table'] = $this->sortTable;
+
+        $this->setTemplate('groups_table');
+        $this->AdminLTEPlugins['dataTables'] = true;
         return '';
     }
 
@@ -141,7 +140,8 @@ class Security extends Admin
 
         $this->data['form']    = $form->createView();
         $this->data['title']   = 'Add new item';
-        $this->template = 'form';
+
+        $this->setTemplate('form');
         return '';
     }
 
@@ -174,7 +174,8 @@ class Security extends Admin
 
         $this->data['form']    = $form->createView();
         $this->data['title']   = 'Edit item';
-        $this->template = 'form';
+
+        $this->setTemplate('form');
         return '';
     }
 

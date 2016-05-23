@@ -3,11 +3,23 @@
 namespace App;
 
 use Silex\Application;
+use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 
-class Auth
+class Auth implements ControllerProviderInterface
 {
+    public function connect(Application $app)
+    {
+        $controllers = $app["controllers_factory"];
+
+        $app->match('/login',          [$this, 'loginAction'])->bind('login');
+        $app->get('/logout',           [$this, 'logoutAction'])->bind('logout');
+        $app->match('/login_redirect', [$this, 'loginRedirectAction'])->bind('login-redirect');
+
+        return $controllers;
+    }
+
     public function loginAction(Request $request, Application $app)
     {
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {
@@ -33,7 +45,7 @@ class Auth
         }
 
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $app->redirect($app->path('homepage'));
+            return $app->redirect($app->path('frontend_home'));
         }
 
         return $app->redirect($app->path('login'));

@@ -28,7 +28,6 @@ abstract class Controller implements ControllerProviderInterface
     public function __construct(Application $app)
     {
         $this->app = $app;
-
     }
 
     protected function em(){
@@ -62,12 +61,17 @@ abstract class Controller implements ControllerProviderInterface
 
     protected function initTwig()
     {
+        if(is_null($this->template)){
+            $this->setTemplate($this->app['request']->get("_route"));
+        }
+
         $this->twig()->addGlobal('page_title', static::$page_title);
         $this->twig()->addGlobal('page_desc', static::$page_desc);
     }
 
     public function after(Request $request, Response $response, Application $app){
         if($response->isRedirection()){ return; }
+
 
        // if ('application/json' === $request->headers->get('Accept')) {
        //     return $this->app()->json($this->data);
@@ -93,12 +97,42 @@ abstract class Controller implements ControllerProviderInterface
         if($response->getContent() == ''){
             $this->initTwig();
             $response->setContent(
-                $this->twig()->render($this->tpl_path.$this->template.'.twig', $this->data)
+                $this->twig()->render($this->template, $this->data)
             );
         }
     }
 
     public static function getTitle(){
         return static::$page_title;
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
+    }
+
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    public function setError($error)
+    {
+        $this->error = $error;
+    }
+
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    public function setTemplate($template)
+    {
+         $this->template = $this->tpl_path.$template.'.twig';
     }
 }

@@ -64,11 +64,6 @@ class Content extends Admin
 
     public function index(Request $request, Application $app){
         // show the list of items
-
-        $this->template = 'table';
-
-        $this->AdminLTEPlugins['dataTables'] = true;
-
         $query = $this->em()->createQueryBuilder()
             ->select('node')
             ->from(self::$entity, 'node')
@@ -83,6 +78,8 @@ class Content extends Admin
         $this->data['actions']    = $this->actions;
         $this->data['sort_table'] = $this->sortTable;
 
+        $this->AdminLTEPlugins['dataTables'] = true;
+        $this->setTemplate('table');
         return '';
     }
 
@@ -133,7 +130,7 @@ class Content extends Admin
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new item';
 
-        $this->template = $this->template.'_form';
+        $this->setTemplate($this->getTemplate().'_form');
         return '';
     }
 
@@ -179,7 +176,7 @@ class Content extends Admin
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Edit item';
 
-        $this->template = $this->template.'_form';
+        $this->setTemplate($this->getTemplate().'_form');
         return '';
     }
 

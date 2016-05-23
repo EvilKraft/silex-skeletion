@@ -72,10 +72,6 @@ class User extends Admin
     public function index(Request $request, Application $app){
         // show the list of users
 
-        $this->template = 'table';
-
-        $this->AdminLTEPlugins['dataTables'] = true;
-
         $this->data['items']      = $app['user.manager']->findAll();
         $this->data['fields']     = count($this->showFields) ? $this->showFields : $this->em()->getClassMetadata(self::$entity)->getFieldNames();
         $this->data['actions']    = $this->actions;
@@ -109,7 +105,8 @@ class User extends Admin
         //echo '<pre>'.print_r($this->data['items'], true).'</pre>';
 
 
-        //return $this->twig()->render('admin/users.twig', $this->data);
+        $this->AdminLTEPlugins['dataTables'] = true;
+        $this->setTemplate('table');
         return '';
     }
 
@@ -142,13 +139,10 @@ class User extends Admin
             }
         }
 
-        $this->AdminLTEPlugins['dataTables'] = true;
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Add new user';
 
-        $this->template = 'form';
-        $this->AdminLTEPlugins['dataTables'] = true;
-
+        $this->setTemplate('form');
         return '';
     }
 
@@ -181,9 +175,7 @@ class User extends Admin
         $this->data['form'] = $form->createView();
         $this->data['title'] = 'Edit User';
 
-        $this->template = 'form';
-        $this->AdminLTEPlugins['dataTables'] = true;
-
+        $this->setTemplate('form');
         return '';
     }
 

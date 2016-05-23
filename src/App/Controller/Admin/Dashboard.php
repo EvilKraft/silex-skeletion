@@ -12,8 +12,6 @@ class Dashboard extends Admin
     protected static $entity = '';
     protected static $form   = '';
 
-    protected $template     = 'dashboard';
-
     protected static $page_title = 'Dashboard';
     protected static $page_desc  = '';
     protected static $icon_class = 'fa fa-dashboard';
@@ -33,7 +31,6 @@ class Dashboard extends Admin
         });
 
         $controllers->get("/", [$this, 'indexAction'])->bind('admin_dashboard');
-        $controllers->get("/test", [$this, 'indexAction'])->bind('admin_dashboard_test');
 
         $controllers->after(array($this, 'after'));
         //$controllers->setOption('i18n', false);
@@ -47,7 +44,6 @@ class Dashboard extends Admin
         $this->data['users']    = $app['user.manager']->getCount();
         $this->data['rate']     = 53;
         $this->data['visitors'] = 65;
-
 
         return '';
     }

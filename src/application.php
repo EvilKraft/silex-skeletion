@@ -49,7 +49,6 @@ Request::enableHttpMethodParameterOverride();
 
 // Register ErrorHandlers
 ErrorHandler::register();
-//ExceptionHandler::register($app['debug']);
 
 // Now, the hard part, handle fatal error.
 $handler = ExceptionHandler::register($app['debug']);
@@ -77,32 +76,37 @@ $handler->setHandler(function ($exception, $x) use ($app) {
 
 // Register the error handler.
 $app->error(function (\Exception $e, $code) use ($app) {
+
     if ($app['debug']) {
         return;
     }
 
+    $template = 'error';
+
     switch ($code) {
         case 403:
             $message = 'You are unauthorized to perform this action.';
-            $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);
             break;
 
         case 404:
             $message = 'The requested page could not be found.';
-            $body    = $app['twig']->render('404.twig', ['code' => $code, 'message' => $message]);
+            $template = '404';
             break;
 
         case 405:
             $message = 'Method is not allowed.';
-            $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);
             break;
 
         default:
             $message = 'We are sorry, but something went terribly wrong.';
-            $body    = $app['twig']->render('error.twig', ['code' => $code, 'message' => $message]);
     }
 
-    return new Response($body, $code);
+
+    $app['request']->get('_controller')[0]->setTemplate($template);
+    $app['request']->get('_controller')[0]->setData(['code' => $code, 'message' => $message]);
+    $app['request']->get('_controller')[0]->setError($message);
+
+    return new Response('', $code);
 });
 
 return $app;

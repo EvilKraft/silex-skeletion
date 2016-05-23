@@ -17,7 +17,7 @@ class Frontend extends \App\Controller
             // check for something here
         });
 
-        $controllers->get("/",        [$this, 'indexAction']    )->bind('homepage');
+        $controllers->get("/",        [$this, 'indexAction']    )->bind('frontend_home');
         $controllers->get("/about",   [$this, 'aboutAction']    )->bind('frontend_about');
 
         $controllers->method('GET|POST')->match("/contact", [$this, 'contactAction']  )->bind('frontend_contact');
@@ -33,17 +33,12 @@ class Frontend extends \App\Controller
     public function indexAction(Request $request, Application $app)
     {
         self::$page_title = 'Main Page';
-
-        $this->template = 'index';
         return '';
     }
 
     public function aboutAction(Request $request, Application $app)
     {
         self::$page_title = 'About Us';
-
-        $this->template = 'about';
-
         return '';
     }
 
@@ -84,19 +79,13 @@ class Frontend extends \App\Controller
 
         $this->data['form'] = $form->createView();
 
-
         self::$page_title = 'Contact';
-        $this->template = 'contact';
-
         return new Response('', 200, array('Cache-Control' => 's-maxage=3600, public'));
     }
 
     public function testAction(Request $request, Application $app)
     {
         self::$page_title = 'Test Page';
-
-        $this->template = 'index';
-
         return new Response('', 200, array('Cache-Control' => 's-maxage=3600, public'));
     }
 

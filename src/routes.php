@@ -13,10 +13,7 @@
 
 $app->mount("/", new App\Controller\Frontend($app));
 $app->mount("/", new App\Controller\User($app));
-
-$app->match('/login',          'App\Auth::loginAction')->bind('login');
-$app->get('/logout',           'App\Auth::logoutAction')->bind('logout');
-$app->match('/login_redirect', 'App\Auth::loginRedirectAction')->bind('login-redirect');
+$app->mount("/", new App\Auth());
 
 
 /* Admin Area*/
